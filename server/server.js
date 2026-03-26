@@ -5,12 +5,16 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes');
 require('dotenv').config();
 
 const app = express();
 
 // Middleware to parse JSON
 app.use(express.json());
+
+// Auth Routes
+app.use('/api/auth', authRoutes);
 
 // Optimized Connection for Mobile Hotspots
 const dbOptions = {
@@ -21,6 +25,7 @@ const dbOptions = {
   // removed keepAlive to fix the 'not supported' error
 };
 console.log("DEBUG: Your URI is:", process.env.MONGO_URI ? "FOUND ✅" : "NOT FOUND ❌");
+console.log("DEBUG: JWT_SECRET is:", process.env.JWT_SECRET ? "FOUND ✅" : "NOT FOUND ❌");
 
 // Add a connection event listener to see what's happening in real-time
 mongoose.connection.on('connecting', () => console.log('⏳ Attempting to open the door to Atlas...'));
