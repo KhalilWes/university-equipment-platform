@@ -13,7 +13,6 @@ function StudentCatalog() {
   const filteredData = equipmentData.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
-
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Student Equipment Catalog</h1>
@@ -42,6 +41,17 @@ function StudentCatalog() {
             >
               {item.status}
             </span>
+            <button
+              type="button"
+              disabled={item.status !== "Available"}
+              className={`mt-4 w-full rounded px-3 py-2 text-sm font-medium transition duration-200 ${
+                item.status === "Available"
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              Réserver
+            </button>
           </div>
         ))}
       </div>
