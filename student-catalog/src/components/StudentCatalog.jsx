@@ -15,7 +15,7 @@ const equipmentData = [
   { id: 10, name: "Document Scanner", status: "Out of Stock", quantity: 0 },
 ];
 
-function StudentCatalog() {
+function StudentCatalog({ onAddReservation }) {
   const [search, setSearch] = useState("");
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -57,6 +57,20 @@ function StudentCatalog() {
       return;
     }
 
+    const status = startDate > today ? "En attente" : "Approuvée";
+    const reservation = {
+      id: Date.now(),
+      equipmentId: selectedEquipment.id,
+      name: selectedEquipment.name,
+      startDate,
+      endDate,
+      status,
+    };
+
+    if (onAddReservation) {
+      onAddReservation(reservation);
+    }
+
     alert(`Réservation confirmée du ${startDate} au ${endDate} pour ${selectedEquipment.name}.`);
     closeModal();
   };
@@ -66,7 +80,7 @@ function StudentCatalog() {
       <section className="catalog-header">
         <div>
           <p className="catalog-tag">University Equipment</p>
-          <h1>Réserve ton matériel facilement</h1>
+          <h1>Catalogue matériel</h1>
           <p className="catalog-description">
             Parcours les équipements disponibles et clique sur « Réserver » pour
             bloquer ton matériel.
