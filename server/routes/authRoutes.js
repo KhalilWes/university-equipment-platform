@@ -1,8 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User.Js');
-const authMiddleware = require('../authMiddleware');
+const User = require('../models/User.js');
+const { authMiddleware, adminMiddleware } = require('../authMiddleware');
 
 const router = express.Router();
 
@@ -32,8 +31,8 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Comparaison du mot de passe avec bcryptjs
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Utilisation de la méthode comparePassword définie dans le modèle User
+    const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -92,6 +91,21 @@ router.get('/me', authMiddleware, (req, res) => {
 });
 
 /**
+ * GET /auth/admin-only
+ * Route de test réservée aux administrateurs
+ */
+router.get('/admin-only', authMiddleware, adminMiddleware, (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: 'Accès administrateur accordé.',
+    user: {
+      id: req.user.id,
+      role: req.user.role
+    }
+  });
+});
+
+/**
  * POST /auth/register
  * Permet à un nouvel utilisateur de s'inscrire
  */
@@ -117,15 +131,11 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Hacher le mot de passe avec bcryptjs (salt: 10)
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Créer et enregistrer le nouvel utilisateur
+    // Créer le nouvel utilisateur. Le hachage sera fait par le middleware pre('save') du modèle.
     const newUser = new User({
       username,
       email,
-      password: hashedPassword,
+      password,
       role: role || 'Student' // Par défaut, le rôle est 'Student'
     });
 

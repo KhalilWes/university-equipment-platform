@@ -6,7 +6,6 @@ function Login() {
     const navigate = useNavigate()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [role, setRole] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
 
@@ -31,9 +30,11 @@ function Login() {
             setIsLoading(false);
 
             if (response.ok && data.token) {
-                // Vérifier si le rôle correspond à ce qui a été choisi, facultatif mais bonne pratique
-                // (Le backend gère actuellement le rôle, donc on pourrait se fier à data.user.role)
-                
+                // Nettoyer d'anciennes clés locales obsolètes
+                ['authToken', 'userId', 'userRole', 'username', 'email'].forEach((key) => {
+                    localStorage.removeItem(key);
+                });
+
                 // Mettre à jour le localStorage
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('token', data.token);
@@ -41,18 +42,17 @@ function Login() {
                     localStorage.setItem('user', JSON.stringify(data.user));
                 }
 
-                // Gérer la redirection selon le rôle choisi par l'utilisateur
-                if (role === 'etudiant') {
+                // Gérer la redirection selon le rôle retourné par le backend
+                const backendRole = data.user?.role
+                if (backendRole === 'Student') {
                     navigate('/Etudiant')
-                } else if (role === 'admin') {
+                } else if (backendRole === 'Admin') {
                     navigate('/Admin')
-                } else if (role === 'technicien') {
+                } else if (backendRole === 'Technician') {
                     navigate('/Technicien')
                 } else {
-                    // Fallback
-                    if (data.user.role === 'Student') navigate('/Etudiant')
-                    else if (data.user.role === 'Admin') navigate('/Admin')
-                    else if (data.user.role === 'Technician') navigate('/Technicien')
+                    // Fallback si le backend ne retourne aucun rôle valide
+                    navigate('/')
                 }
             } else {
                 setError(data.message || 'Identifiants ou rôle incorrects');
@@ -91,32 +91,6 @@ function Login() {
                 )}
 
                 <form onSubmit={handleSubmit} className="login-form">
-                    <div className="form-group">
-                        <label htmlFor="role">Rôle</label>
-                        <div className="input-wrapper">
-                            <span className="input-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                            </span>
-                            <select
-                                id="role"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                                className="form-select"
-                                required
-                            >
-                                <option value="" disabled>Choisissez votre rôle</option>
-                                <option value="etudiant">Étudiant</option>
-                                <option value="admin">Admin</option>
-                                <option value="technicien">Technicien</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
                         <div className="input-wrapper">

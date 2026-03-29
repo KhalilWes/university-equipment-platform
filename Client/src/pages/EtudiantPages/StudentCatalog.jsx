@@ -1,22 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./StudentCatalog.css";
 
 const today = new Date().toISOString().split("T")[0];
 
-const equipmentData = [
-  { id: 1, name: "Projector", status: "Available", quantity: 4 },
-  { id: 2, name: "Laptop", status: "Out of Stock", quantity: 0 },
-  { id: 3, name: "Camera", status: "Available", quantity: 3 },
-  { id: 4, name: "Microphone", status: "Out of Stock", quantity: 0 },
-  { id: 5, name: "Tablet", status: "Available", quantity: 6 },
-  { id: 6, name: "3D Printer", status: "Available", quantity: 2 },
-  { id: 7, name: "VR Headset", status: "Out of Stock", quantity: 0 },
-  { id: 8, name: "Wireless Speaker", status: "Available", quantity: 5 },
-  { id: 9, name: "Graphics Tablet", status: "Available", quantity: 4 },
-  { id: 10, name: "Document Scanner", status: "Out of Stock", quantity: 0 },
-];
-
 function StudentCatalog({ onAddReservation }) {
+  const [equipmentData, setEquipmentData] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [selectedEquipment, setSelectedEquipment] = useState(null);
@@ -24,6 +12,32 @@ function StudentCatalog({ onAddReservation }) {
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/equipment', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          setEquipmentData(result.data);
+        }
+      } catch (err) {
+        console.error("Erreur lors de la récupération du catalogue:", err);
+        setErrorMessage("Impossible de charger le catalogue.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEquipment();
+  }, []);
 
   const filteredData = equipmentData.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
@@ -64,7 +78,7 @@ function StudentCatalog({ onAddReservation }) {
     const status = startDate > today ? "En attente" : "Approuvée";
     const reservation = {
       id: Date.now(),
-      equipmentId: selectedEquipment.id,
+      equipmentId: selectedEquipment._id,
       name: selectedEquipment.name,
       startDate,
       endDate,
@@ -111,11 +125,13 @@ function StudentCatalog({ onAddReservation }) {
       </section>
 
       <section className="equipment-grid">
-        {filteredData.length === 0 ? (
+        {isLoading ? (
+          <div className="inventory-status">Chargement du matériel...</div>
+        ) : filteredData.length === 0 ? (
           <div className="inventory-status">Aucun équipement ne correspond à votre recherche.</div>
         ) : (
           filteredData.map((item) => (
-            <article key={item.id} className="equipment-card">
+            <article key={item._id} className="equipment-card">
               <div className="equipment-card-top">
                 <span className="equipment-emoji">{item.emoji}</span>
                 <span

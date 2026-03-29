@@ -59,4 +59,17 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+const adminMiddleware = (req, res, next) => {
+  if (!req.user || req.user.role !== 'Admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Accès refusé. Admin uniquement.'
+    });
+  }
+  next();
+};
+
+module.exports = {
+  authMiddleware,
+  adminMiddleware
+};

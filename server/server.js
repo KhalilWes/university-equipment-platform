@@ -1,20 +1,22 @@
-
+require('dotenv').config();
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']); // Force Node to use Google DNS
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
-require('dotenv').config();
+const equipmentRoutes = require('./routes/equipmentRoutes');
 
 const app = express();
 
-// Middleware to parse JSON
+// Middlewares
 app.use(express.json());
+app.use(cors());
 
 // Auth Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/equipment', equipmentRoutes);
 
 // Optimized Connection for Mobile Hotspots
 const dbOptions = {
@@ -24,8 +26,6 @@ const dbOptions = {
   family: 4 
   // removed keepAlive to fix the 'not supported' error
 };
-console.log("DEBUG: Your URI is:", process.env.MONGO_URI ? "FOUND ✅" : "NOT FOUND ❌");
-console.log("DEBUG: JWT_SECRET is:", process.env.JWT_SECRET ? "FOUND ✅" : "NOT FOUND ❌");
 
 // Add a connection event listener to see what's happening in real-time
 mongoose.connection.on('connecting', () => console.log('⏳ Attempting to open the door to Atlas...'));
