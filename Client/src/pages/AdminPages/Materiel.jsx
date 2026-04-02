@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export default function Materiel() {
   const [equipment, setEquipment] = useState([]);
@@ -280,16 +280,16 @@ export default function Materiel() {
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '15px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Nom de l'équipement</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '8px' }} required />
+                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', boxSizing: 'border-box', backgroundColor: '#fff' }} required />
               </div>
               <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}>Numéro de Série</label>
-                  <input type="text" value={formData.serialNumber} onChange={(e) => setFormData({...formData, serialNumber: e.target.value})} style={{ width: '100%', padding: '8px' }} required />
+                  <input type="text" value={formData.serialNumber} onChange={(e) => setFormData({...formData, serialNumber: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', boxSizing: 'border-box', backgroundColor: '#fff' }} required />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}>Catégorie</label>
-                  <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} style={{ width: '100%', padding: '8px' }}>
+                  <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', boxSizing: 'border-box', backgroundColor: '#fff' }}>
                     <option value="computers">Ordinateurs</option>
                     <option value="projectors">Projecteurs</option>
                     <option value="electronics">Électronique</option>
@@ -300,7 +300,7 @@ export default function Materiel() {
               <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}>État</label>
-                  <select value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} style={{ width: '100%', padding: '8px' }}>
+                  <select value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', boxSizing: 'border-box', backgroundColor: '#fff' }}>
                     <option value="New">Neuf</option>
                     <option value="Good">Bon état</option>
                     <option value="Fair">Passable</option>
@@ -310,17 +310,17 @@ export default function Materiel() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}>Quantité</label>
-                  <input type="number" min="0" value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value)})} style={{ width: '100%', padding: '8px' }} />
+                  <input type="number" min="0" value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value)})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', boxSizing: 'border-box', backgroundColor: '#fff' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}>Emoji (Optionnel)</label>
-                  <input type="text" value={formData.emoji} onChange={(e) => setFormData({...formData, emoji: e.target.value})} style={{ width: '100%', padding: '8px' }} />
+                  <input type="text" value={formData.emoji} onChange={(e) => setFormData({...formData, emoji: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', boxSizing: 'border-box', backgroundColor: '#fff' }} />
                 </div>
                 <div style={{ flex: 2 }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}>Photo de l'équipement</label>
-                  <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} style={{ width: '100%' }} />
+                  <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', boxSizing: 'border-box', backgroundColor: '#fff' }} />
                 </div>
               </div>
               {error && <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>}

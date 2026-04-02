@@ -14,6 +14,12 @@ function StudentCatalog({ onAddReservation }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  const normalizeCategory = (value) => (value || "").toString().trim().toLowerCase();
+  const formatCategoryLabel = (value) => {
+    if (!value) return "";
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  };
+
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
@@ -39,14 +45,29 @@ function StudentCatalog({ onAddReservation }) {
     fetchEquipment();
   }, []);
 
+  const isItemAvailable = (item) => {
+    const quantity = Number(item.quantity) || 0;
+    return quantity > 0 && item.status !== "Maintenance";
+  };
+
   const filteredData = equipmentData.filter((item) => {
+    const isAvailable = isItemAvailable(item);
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = category === "all" || item.category === category;
-    return matchesSearch && matchesCategory;
+    const matchesCategory =
+      category === "all" || normalizeCategory(item.category) === category;
+    return isAvailable && matchesSearch && matchesCategory;
   });
 
+  const categoryOptions = [
+    ...new Set(
+      equipmentData
+        .map((item) => normalizeCategory(item.category))
+        .filter(Boolean)
+    ),
+  ];
+
   const openModal = (item) => {
-    if (item.status !== "Available" || item.quantity <= 0) {
+    if (!isItemAvailable(item)) {
       setErrorMessage("Cet équipement n'est pas disponible pour le moment.");
       return;
     }
@@ -118,9 +139,11 @@ function StudentCatalog({ onAddReservation }) {
         </div>
         <select className="catalog-filter" value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="all">Toutes les catégories</option>
-          <option value="computers">Ordinateurs</option>
-          <option value="projectors">Projecteurs</option>
-          <option value="electronics">Électronique</option>
+          {categoryOptions.map((itemCategory) => (
+            <option key={itemCategory} value={itemCategory}>
+              {formatCategoryLabel(itemCategory)}
+            </option>
+          ))}
         </select>
       </section>
 
@@ -133,12 +156,23 @@ function StudentCatalog({ onAddReservation }) {
           filteredData.map((item) => (
             <article key={item._id} className="equipment-card">
               <div className="equipment-card-top">
-                <span className="equipment-emoji">{item.emoji}</span>
+                <div className="equipment-media">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="equipment-image"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="equipment-emoji">{item.emoji}</span>
+                  )}
+                </div>
                 <span
-                  className={`status-badge ${item.status === "Available" ? "status-available" : "status-unavailable"
+                  className={`status-badge ${isItemAvailable(item) ? "status-available" : "status-unavailable"
                     }`}
                 >
-                  {item.status === "Available" ? "Disponible" : "Indisponible"}
+                  {isItemAvailable(item) ? "Disponible" : "Indisponible"}
                 </span>
               </div>
               <h2>{item.name}</h2>
@@ -148,7 +182,7 @@ function StudentCatalog({ onAddReservation }) {
               <span className="common-tag">Matériel</span>
               <button
                 type="button"
-                disabled={item.status !== "Available"}
+                disabled={!isItemAvailable(item)}
                 className="reserve-button"
                 onClick={() => openModal(item)}
               >
