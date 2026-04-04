@@ -1,0 +1,185 @@
+/* MyReservations.css */
+
+.reservation-page {
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #1e293b;
+  max-width: 1000px;
+}
+
+.reservation-page .catalog-header {
+  margin-bottom: 32px;
+}
+
+.reservation-page .catalog-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.reservation-page .catalog-description {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Stats Section */
+.reservation-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.res-stat-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.res-stat-card span {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.res-stat-card strong {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.res-stat-card.stat-active strong { color: #2563eb; }
+.res-stat-card.stat-total strong { color: #0f172a; }
+.res-stat-card.stat-pending strong { color: #d97706; }
+
+/* List Section */
+.reservation-list-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #0f172a;
+}
+
+.reservation-list-header svg {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  color: #2563eb;
+}
+
+.reservation-list-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.reservation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.res-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.res-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.res-card-icon {
+  background-color: #dbeafe;
+  color: #2563eb;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.res-card-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.res-card-title-group {
+  flex-grow: 1;
+}
+
+.res-card-title-group h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.res-card-category {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.res-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.res-badge.pending {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.res-badge.approved {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.res-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.res-date-row {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.res-date-row svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.res-footer-note {
+  background-color: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #475569;
+  margin-top: auto;
+}
