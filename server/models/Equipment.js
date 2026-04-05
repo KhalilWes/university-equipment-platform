@@ -73,4 +73,22 @@ equipmentSchema.pre('save', function() {
   }
 });
 
+equipmentSchema.methods.checkAvailability = function() {
+  if (this.status === 'Maintenance') {
+    return {
+      available: false,
+      reason: 'Cet équipement est en maintenance'
+    };
+  }
+
+  if (this.quantity <= 0) {
+    return {
+      available: false,
+      reason: 'Cet équipement est en rupture de stock'
+    };
+  }
+
+  return { available: true };
+};
+
 module.exports = mongoose.model('Equipment', equipmentSchema);
