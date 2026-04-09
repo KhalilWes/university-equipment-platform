@@ -9,7 +9,20 @@ const equipmentSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'La catégorie est requise'],
-    enum: ['computers', 'projectors', 'electronics', 'informatique', 'other'],
+    enum: [
+      'computers',
+      'projectors',
+      'electronics',
+      'informatique',
+      'other',
+      'laboratoire',
+      'ordinateurs',
+      'projecteur',
+      'projecteurs',
+      'electronique',
+      'électronique',
+      'autre'
+    ],
     lowercase: true
   },
   serialNumber: {
@@ -26,7 +39,7 @@ const equipmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Available', 'Out of Stock', 'Maintenance'],
+    enum: ['Available', 'Out of Stock', 'Maintenance', 'Disponible', 'Rupture de stock', 'En maintenance'],
     default: 'Available'
   },
   quantity: {
@@ -72,5 +85,23 @@ equipmentSchema.pre('save', function() {
     this.status = this.quantity > 0 ? 'Available' : 'Out of Stock';
   }
 });
+
+equipmentSchema.methods.checkAvailability = function() {
+  if (this.status === 'Maintenance') {
+    return {
+      available: false,
+      reason: 'Cet équipement est en maintenance'
+    };
+  }
+
+  if (this.quantity <= 0) {
+    return {
+      available: false,
+      reason: 'Cet équipement est en rupture de stock'
+    };
+  }
+
+  return { available: true };
+};
 
 module.exports = mongoose.model('Equipment', equipmentSchema);

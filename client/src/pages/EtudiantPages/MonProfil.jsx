@@ -1,15 +1,31 @@
 import React from "react";
 import "./MonProfil.css";
 
+const normalizeStatus = (value) => {
+  const raw = (value || "").toString().toLowerCase();
+  if (raw.includes("approv") || raw.includes("approuv")) return "approved";
+  if (raw.includes("refus")) return "refused";
+  if (raw.includes("return") || raw.includes("retour")) return "returned";
+  return "pending";
+};
+
+const isReservationActive = (reservation, today) => {
+  return reservation.startDate <= today && reservation.endDate >= today;
+};
+
 function MonProfil({ user, reservations }) {
   const today = new Date().toISOString().split("T")[0];
+  const normalizedReservations = reservations.map((reservation) => ({
+    ...reservation,
+    statusNormalized: normalizeStatus(reservation.status || reservation.statusLabel),
+  }));
   const totalReservations = reservations.length;
-  const approvedReservations = reservations.filter((reservation) => reservation.status === "Approuvée");
-  const pendingReservations = reservations.filter((reservation) => reservation.status === "En attente");
-  const finishedReservations = reservations.filter((reservation) => reservation.status === "Terminée");
-  const refusedReservations = reservations.filter((reservation) => reservation.status === "Refusée");
-  const activeReservations = approvedReservations.filter(
-    (reservation) => reservation.startDate <= today && reservation.endDate >= today
+  const approvedReservations = normalizedReservations.filter((reservation) => reservation.statusNormalized === "approved");
+  const pendingReservations = normalizedReservations.filter((reservation) => reservation.statusNormalized === "pending");
+  const finishedReservations = normalizedReservations.filter((reservation) => reservation.statusNormalized === "returned");
+  const refusedReservations = normalizedReservations.filter((reservation) => reservation.statusNormalized === "refused");
+  const activeReservations = approvedReservations.filter((reservation) =>
+    isReservationActive(reservation, today)
   );
   // Count how many reservations match the penalty criteria
   const penaltiesCount = reservations.filter((reservation) => reservation.penalties).length;

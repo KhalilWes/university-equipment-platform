@@ -7,7 +7,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const equipmentRoutes = require('./routes/equipmentRoutes');
-const reservationRoutes = require('./routes/reservationRoutes'); 
+const reservationRoutes = require('./routes/reservationRoutes');
+const penaltyRoutes = require('./routes/penaltyRoutes');
 const app = express();
 
 // Middlewares
@@ -17,6 +18,8 @@ app.use(cors());
 // Auth Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/equipment', equipmentRoutes);
+app.use('/api/reservations', reservationRoutes);
+app.use('/api/penalties', penaltyRoutes);
 
 // Optimized Connection for Mobile Hotspots
 const dbOptions = {
