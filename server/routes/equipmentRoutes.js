@@ -199,6 +199,48 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
 });
 
 /**
+ * PUT /api/equipment/:id/status
+ * Met à jour le statut maintenance/disponible.
+ * Accessible par : Technician uniquement.
+ */
+router.put('/:id/status', authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role !== 'Technician') {
+      return res.status(403).json({ success: false, message: 'Accès refusé. Technician uniquement.' });
+    }
+
+    const { status } = req.body;
+    const allowedStatuses = ['Available', 'Maintenance'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Statut invalide. Utilisez: ${allowedStatuses.join(', ')}`
+      });
+    }
+
+    const equipment = await Equipment.findById(req.params.id);
+    if (!equipment) {
+      return res.status(404).json({ success: false, message: 'Équipement non trouvé' });
+    }
+
+    equipment.status = status;
+    await equipment.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Statut mis à jour avec succès',
+      data: equipment
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: 'Erreur lors de la mise à jour du statut',
+      error: error.message
+    });
+  }
+});
+
+/**
  * DELETE /api/equipment/empty-trash
  * Supprime définitivement TOUS les équipements marqués comme supprimés.
  */
