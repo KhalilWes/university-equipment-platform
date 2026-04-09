@@ -161,4 +161,27 @@ router.post('/register', async (req, res) => {
   }
 });
 
+/**
+ * GET /auth/users
+ * Récupère la liste de tous les utilisateurs (Admin uniquement)
+ */
+router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password'); // Exclude password field
+    return res.status(200).json({
+      success: true,
+      message: 'Utilisateurs récupérés avec succès.',
+      data: users || [],
+      count: users.length
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des utilisateurs:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur serveur lors de la récupération des utilisateurs.',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

@@ -96,7 +96,7 @@ export function useAdminDashboardData() {
 
     const [usersData, equipmentData, reservationsData, penaltiesData] =
       await Promise.all([
-        fetchOptionalList('http://localhost:5000/api/users', headers),
+        fetchOptionalList('http://localhost:5000/api/auth/users', headers),
         fetchOptionalList('http://localhost:5000/api/equipment', headers),
         fetchOptionalList('http://localhost:5000/api/reservations', headers),
         fetchOptionalList('http://localhost:5000/api/penalties', headers),
