@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 export default function Materiel() {
   const [equipment, setEquipment] = useState([]);
@@ -53,9 +54,15 @@ export default function Materiel() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) fetchEquipment();
+      if (data.success) {
+        toast.success("Équipement supprimé avec succès.");
+        fetchEquipment();
+      } else {
+        toast.error(data.message || "Impossible de supprimer l'équipement.");
+      }
     } catch (err) {
       console.error("Erreur suppression:", err);
+      toast.error("Erreur serveur lors de la suppression.");
     }
   };
 
@@ -67,9 +74,15 @@ export default function Materiel() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) fetchEquipment();
+      if (data.success) {
+        toast.success("Équipement restauré avec succès.");
+        fetchEquipment();
+      } else {
+        toast.error(data.message || "Impossible de restaurer l'équipement.");
+      }
     } catch (err) {
       console.error("Erreur restauration:", err);
+      toast.error("Erreur serveur lors de la restauration.");
     }
   };
 
@@ -82,9 +95,15 @@ export default function Materiel() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) fetchEquipment();
+      if (data.success) {
+        toast.success("Équipement supprimé définitivement.");
+        fetchEquipment();
+      } else {
+        toast.error(data.message || "Impossible de supprimer définitivement l'équipement.");
+      }
     } catch (err) {
       console.error("Erreur suppression définitive:", err);
+      toast.error("Erreur serveur lors de la suppression définitive.");
     }
   };
 
@@ -97,9 +116,15 @@ export default function Materiel() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) fetchEquipment();
+      if (data.success) {
+        toast.success("Corbeille vidée avec succès.");
+        fetchEquipment();
+      } else {
+        toast.error(data.message || "Impossible de vider la corbeille.");
+      }
     } catch (err) {
       console.error("Erreur vidage corbeille:", err);
+      toast.error("Erreur serveur lors du vidage de la corbeille.");
     }
   };
 

@@ -1,15 +1,97 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import "./MyReservations.css";
 
-function MyReservations({ reservations }) {
+const normalizeStatus = (value) => {
+  const raw = (value || "").toString().toLowerCase();
+  if (raw.includes("approv") || raw.includes("approuv")) return "Approuvée";
+  if (raw.includes("refus")) return "Refusée";
+  if (raw.includes("return") || raw.includes("retour")) return "Terminée";
+  return "En attente";
+};
+
+const formatDate = (value) => {
+  if (!value) return "N/A";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+function MyReservations() {
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const fetchReservations = async () => {
+      try {
+        setLoading(true);
+        setErrorMessage("");
+
+        const token = localStorage.getItem("token");
+        const userRaw = localStorage.getItem("user");
+        const user = userRaw ? JSON.parse(userRaw) : null;
+        const studentId = user?.id;
+
+        if (!token || !studentId) {
+          setReservations([]);
+          const message = "Impossible de charger vos réservations.";
+          setErrorMessage(message);
+          toast.error(message);
+          return;
+        }
+
+        const response = await fetch(
+          `http://localhost:5000/api/reservations/student/${studentId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || !result.success) {
+          setReservations([]);
+          const message = result.message || "Erreur lors du chargement des réservations.";
+          setErrorMessage(message);
+          toast.error(message);
+          return;
+        }
+
+        setReservations(result.data || []);
+      } catch (error) {
+        setReservations([]);
+        const message = "Erreur réseau lors du chargement des réservations.";
+        setErrorMessage(message);
+        toast.error(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReservations();
+  }, []);
+
   const today = new Date().toISOString().split("T")[0];
-  const approvedReservations = reservations.filter((reservation) => reservation.status === "Approuvée");
+  const normalizedReservations = reservations.map((reservation) => ({
+    ...reservation,
+    statusLabel: normalizeStatus(reservation.status),
+  }));
+
+  const approvedReservations = normalizedReservations.filter(
+    (reservation) => reservation.statusLabel === "Approuvée"
+  );
   const activeReservations = approvedReservations.filter(
     (reservation) => reservation.startDate <= today && reservation.endDate >= today
   );
-  // Unify pending logic to only check the actual status
-  const pendingReservations = reservations.filter(
-    (reservation) => reservation.status === "En attente"
+  const pendingReservations = normalizedReservations.filter(
+    (reservation) => reservation.statusLabel === "En attente"
   );
 
   return (
@@ -36,6 +118,34 @@ function MyReservations({ reservations }) {
         </article>
       </section>
 
+      {loading && (
+        <div className="reservation-skeleton-grid">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <article key={`reservation-skeleton-${index}`} className="res-card reservation-skeleton-card">
+              <div className="res-card-top">
+                <div className="reservation-skeleton-box reservation-skeleton-icon" />
+                <div className="reservation-skeleton-head">
+                  <div className="reservation-skeleton-box reservation-skeleton-title" />
+                  <div className="reservation-skeleton-box reservation-skeleton-subtitle" />
+                </div>
+                <div className="reservation-skeleton-box reservation-skeleton-badge" />
+              </div>
+
+              <div className="res-dates">
+                <div className="reservation-skeleton-box reservation-skeleton-line" />
+                <div className="reservation-skeleton-box reservation-skeleton-line" />
+              </div>
+
+              <div className="reservation-skeleton-box reservation-skeleton-footer" />
+            </article>
+          ))}
+        </div>
+      )}
+
+      {!loading && errorMessage && (
+        <div className="reservation-error-state">{errorMessage}</div>
+      )}
+
       <section className="reservation-list">
         <div className="reservation-list-header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -47,12 +157,12 @@ function MyReservations({ reservations }) {
           <h2>Toutes les réservations</h2>
         </div>
 
-        {reservations.length === 0 ? (
+        {!loading && !errorMessage && normalizedReservations.length === 0 ? (
           <p className="empty-state">Aucune réservation pour le moment. Réserve un équipement pour en ajouter.</p>
-        ) : (
+        ) : !loading && !errorMessage ? (
           <div className="reservation-grid">
-            {reservations.map((reservation) => (
-              <article key={reservation.id} className="res-card">
+            {normalizedReservations.map((reservation) => (
+              <article key={reservation._id || reservation.id} className="res-card">
                 <div className="res-card-top">
                   <div className="res-card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -60,11 +170,11 @@ function MyReservations({ reservations }) {
                     </svg>
                   </div>
                   <div className="res-card-title-group">
-                    <h3>{reservation.name}</h3>
+                    <h3>{reservation.equipmentName || reservation.name || "Matériel"}</h3>
                     <span className="res-card-category">Matériel</span>
                   </div>
-                  <span className={`res-badge ${reservation.status === "Approuvée" ? "approved" : reservation.status === "Refusée" ? "refused" : "pending"}`}>
-                    {reservation.status}
+                  <span className={`res-badge ${reservation.statusLabel === "Approuvée" ? "approved" : reservation.statusLabel === "Refusée" ? "refused" : "pending"}`}>
+                    {reservation.statusLabel}
                   </span>
                 </div>
 
@@ -76,7 +186,7 @@ function MyReservations({ reservations }) {
                       <line x1="8" y1="2" x2="8" y2="6" />
                       <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                    <span>{reservation.startDate} 10:00</span>
+                    <span>{formatDate(reservation.startDate)}</span>
                   </div>
                   <div className="res-date-row">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -85,7 +195,7 @@ function MyReservations({ reservations }) {
                       <line x1="8" y1="2" x2="8" y2="6" />
                       <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                    <span>{reservation.endDate} 18:00</span>
+                    <span>{formatDate(reservation.endDate)}</span>
                   </div>
                 </div>
 
@@ -95,7 +205,7 @@ function MyReservations({ reservations }) {
               </article>
             ))}
           </div>
-        )}
+        ) : null}
       </section>
     </main>
   );

@@ -41,7 +41,7 @@ export default function Etudiant() {
     const renderPage = () => {
         switch (activePage) {
             case 'Catalogue': return <StudentCatalog onAddReservation={handleAddReservation} />;
-            case 'reservation': return <MyReservations reservations={reservations} />;
+            case 'reservation': return <MyReservations />;
             case 'Penalite': return <MesPenalites penalties={penalties} />;
             case 'Profil': return <MonProfil user={user} reservations={reservations} />;
             default: return <MonProfil user={user} reservations={reservations} />;

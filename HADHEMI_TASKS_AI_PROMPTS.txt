@@ -1,85 +1,34 @@
-HADHEMI - SPRINT 2 TASKS (BACKEND API & ADMIN)
-Project: Equipment Booking System | Date: 2026-04-02
+HADHEMI - REMAINING TASKS ONLY
+Project: Equipment Booking System | Updated: 2026-04-10
 
 ════════════════════════════════════════════════════════════════════════════
 
-SPRINT 2 (HIGH PRIORITY)
+SPRINT 3 (PENDING)
 
-H1 - PATCH /api/reservations/:id/status Endpoint
-File: server/routes/equipmentRoutes.js or server/routes/reservationRoutes.js
-Admin endpoint to approve/refuse reservations.
+H4 - Maintenance Logs API (InterventionLog)
+Files: server/models/Equipment.js, server/routes/equipmentRoutes.js
 
-Details:
-- Auth required: JWT (admin only)
-- Params: reservationId
-- Body: { status } where status = approved | refused
-- Update Reservation doc status
-- If approved: decrease Equipment quantity by 1
-- Response: { success: true, data: { ...updated }, message: '...' }
+Goal:
+- Add an InterventionLog array on Equipment to track technician repairs.
+- Expose API endpoints to append/read logs.
 
-AI Prompt:
-"Create PATCH /api/reservations/:id/status endpoint. Add admin role check 
-in middleware. Body: { status: 'approved' | 'refused' }. Find Reservation, 
-update status. If approved, also decrement Equipment.quantity by 1 (for 
-that equipmentId). Respond { success, data, message }. Handle not-found, 
-invalid status, and database errors."
-
-Commit: git commit -m "feat(backend): PATCH reservation status endpoint"
-
-────────────────────────────────────────────────────────────────────────────
-
-H2 - GET /api/reservations/student/:studentId Endpoint
-File: server/routes/equipmentRoutes.js or server/routes/reservationRoutes.js
-Student history endpoint.
-
-Details:
-- Auth required: JWT
-- Returns all reservations for student (or just student's own if security rule)
-- Include equipmentName (join with Equipment model)
-- Sort by createdAt descending
-- Response: { success: true, data: [...], message: '...' }
+Required Data:
+- technicianId (ref User)
+- note/description
+- statusBefore, statusAfter
+- createdAt
 
 AI Prompt:
-"Create GET /api/reservations/student/:studentId endpoint. Fetch all 
-Reservation docs where userId matches studentId (or use JWT user._id). Use 
-populate('equipmentId') to get equipment details. Return array of 
-reservations with equipmentName, dates, status. Sort by createdAt desc. 
-Respond { success: true, data: [...], message }. Add error handling."
+"Update Equipment schema to add interventionLogs array with fields: technicianId (ObjectId ref User), note (String), statusBefore (String), statusAfter (String), createdAt (Date default now). Add endpoints: POST /api/equipment/:id/interventions (Technician/Admin) to add a log and optionally update status; GET /api/equipment/:id/interventions to list logs sorted desc. Return { success, data, message } with proper 400/403/404/500 handling."
 
-Commit: git commit -m "feat(backend): GET student reservations history"
-
-────────────────────────────────────────────────────────────────────────────
-
-H3 - GET /api/reservations Endpoint (All Reservations)
-File: server/routes/equipmentRoutes.js or server/routes/reservationRoutes.js
-Admin dashboard endpoint.
-
-Details:
-- Auth required: JWT (admin only)
-- Returns ALL reservations (with pagination optional)
-- Include studentName, studentId, equipmentName, dates, status
-- Populate User and Equipment refs
-- Response: { success: true, data: [...], message: '...' }
-
-AI Prompt:
-"Create GET /api/reservations endpoint for admins. Fetch all Reservation 
-docs. Use populate('userId', 'name email') and populate('equipmentId', 
-'name'). Transform response to include studentName, studentId, 
-equipmentName, startDate, endDate, status. Respond { success, data, message }. 
-Add admin role check."
-
-Commit: git commit -m "feat(backend): GET all reservations for admin"
+Commit:
+git commit -m "feat(backend): add maintenance intervention logs API"
 
 ════════════════════════════════════════════════════════════════════════════
 
 ✅ DO BEFORE PR:
-[ ] Admin can approve reservation → quantity decreases
-[ ] Admin can refuse reservation → quantity unchanged
-[ ] Student sees only own reservations
-[ ] GET endpoints return populated data (names, not just IDs)
-[ ] Status validation (only pending can approve/refuse)
-[ ] JWT auth checked on all endpoints
-[ ] Admin role required for admin endpoints
-[ ] Date format consistent (ISO 8601)
-[ ] Error responses clear (400/403/404/500)
-[ ] No console errors
+[ ] Equipment schema stores intervention logs
+[ ] Technician/Admin can add intervention entry
+[ ] Logs endpoint returns sorted intervention history
+[ ] Role protection on write endpoint
+[ ] Clear error responses and no console errors
