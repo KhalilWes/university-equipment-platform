@@ -7,7 +7,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const equipmentRoutes = require('./routes/equipmentRoutes');
-
+const reservationRoutes = require('./routes/reservationRoutes'); 
 const app = express();
 
 // Middlewares
