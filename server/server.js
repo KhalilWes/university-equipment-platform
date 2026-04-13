@@ -1,7 +1,7 @@
-require('dotenv').config();
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']); // Force Node to use Google DNS
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const equipmentRoutes = require('./routes/equipmentRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const penaltyRoutes = require('./routes/penaltyRoutes');
+const { scheduleDailyOverdueCheck } = require('./jobs/checkOverdueReservations');
 
 const app = express();
 
@@ -40,6 +41,9 @@ mongoose.connect(process.env.MONGO_URI, dbOptions)
     console.log("------------------------------------------");
     console.log("✅ FINALLY! Connected to MongoDB Atlas");
     console.log("------------------------------------------");
+
+    // Schedule the overdue penalty scan once DB is available.
+    scheduleDailyOverdueCheck();
   })
   .catch(err => {
     console.log("------------------------------------------");
