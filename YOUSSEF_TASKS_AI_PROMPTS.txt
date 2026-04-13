@@ -1,85 +1,32 @@
-YOUSSEF - SPRINT 2 & 3 TASKS (LOGIC & PENALTIES)
-Project: Equipment Booking System | Date: 2026-04-02
+YOUSSEF - REMAINING TASKS ONLY
+Project: Equipment Booking System | Updated: 2026-04-10
 
 ════════════════════════════════════════════════════════════════════════════
 
-SPRINT 2 (MEDIUM PRIORITY)
+SPRINT 3 (PENDING)
 
-Y1 - Penalty Schema
-File: server/models/Penalty.js
-Create MongoDB schema for tracking late returns.
+Y4 - Technician Dashboard Frontend
+Files: client/src/pages/TechnicienPages/Tableau.jsx, client/src/pages/TechnicienPages/Maintenance.jsx, client/src/pages/TechnicienPages/Profil.jsx
 
-Details:
-- Fields: userId (ref User), reservationId (ref Reservation), 
-         daysLate (number), penaltyAmount (number), status (paid/unpaid)
-- Timestamps: createdAt, markedPaidAt
-- Index on userId for student penalty history
+Goal:
+- Replace placeholder technician pages with real UI and API-driven data.
 
-AI Prompt:
-"Create server/models/Penalty.js with Mongoose schema. Fields: userId 
-(ObjectId ref User), reservationId (ObjectId ref Reservation), daysLate 
-(Number), penaltyAmount (number, default 0), status (enum: unpaid/paid, 
-default unpaid), createdAt, markedPaidAt. Export model as Penalty."
-
-Commit: git commit -m "feat(backend): create Penalty model"
-
-════════════════════════════════════════════════════════════════════════════
-
-SPRINT 3 (LOWER PRIORITY)
-
-Y2 - Overdue Check Background Task
-File: server/jobs/checkOverdueReservations.js or server/cron/overdue.js
-Task/cron to find late returns and create penalties.
-
-Details:
-- Runs daily (8:00 AM) or on-demand
-- Find all approved Reservations with endDate < today
-- Check if Reservation.status === approved (not yet returned)
-- Calculate daysLate = today - endDate
-- Create Penalty doc with daysLate and penaltyAmount (daysLate * 5 or 10)
-- Optional: Notify admin/student via email or flag
+Minimum Features:
+- Show broken/maintenance equipment list from API.
+- Let technician update equipment status back to Available/Maintenance.
+- Show quick technician stats (total assigned/maintenance done/etc. if available).
 
 AI Prompt:
-"Create server/jobs/checkOverdueReservations.js. On execution (daily), 
-find all Reservation docs with status approved and endDate < today. For 
-each, calculate daysLate. If no Penalty exists for that reservation, create 
-one with penaltyAmount = daysLate * 5 (configurable penalty per day). Log 
-results. Optional: use node-cron to schedule daily at 8:00 AM, or call 
-manually from API endpoint. Export function or setup cron."
+"Build Technician dashboard pages using existing project style. In TechnicienPages/Tableau.jsx fetch equipment data and display cards/table focused on items with status Maintenance or broken-like condition. In TechnicienPages/Maintenance.jsx add action buttons to update status via PUT /api/equipment/:id/status with Bearer token. In TechnicienPages/Profil.jsx show connected technician info from localStorage user. Add loading/error/empty states and keep French UI labels."
 
-Commit: git commit -m "feat(backend): overdue penalty check job"
-
-────────────────────────────────────────────────────────────────────────────
-
-Y3 - Maintenance Mode Logic
-File: server/models/Equipment.js (update), server/routes/equipmentRoutes.js
-Add maintenance mode handling.
-
-Details:
-- Equipment.status = "Maintenance" when technician marks it
-- Cannot be booked when status === Maintenance
-- Check happens in checkAvailability() + reservation creation
-- Technician can manually set status back to Available
-- Optional: auto-disable after repair completion
-
-AI Prompt:
-"In Equipment.js model, add status field with enum: Available/Maintenance 
-(default Available). In checkAvailability(), add check: if Equipment.status 
-=== 'Maintenance', return { available: false }. In POST /api/reservations, 
-before creating, also verify equipment is not in Maintenance. Add 
-PUT /api/equipment/:id/status endpoint (technician only) to update status 
-between Available and Maintenance."
-
-Commit: git commit -m "feat(backend): maintenance mode support"
+Commit:
+git commit -m "feat(technician): implement technician dashboard and maintenance actions"
 
 ════════════════════════════════════════════════════════════════════════════
 
 ✅ DO BEFORE PR:
-[ ] Penalty model creates documents
-[ ] Overdue check finds late reservations
-[ ] Penalties created with correct calculations
-[ ] Maintenance status prevents bookings
-[ ] Technician can toggle Maintenance status
-[ ] No bookings allowed during Maintenance
-[ ] Penalty status can be marked paid
-[ ] Job runs without console errors
+[ ] Technician pages are no longer placeholders
+[ ] Maintenance list loads from backend
+[ ] Status update actions work from UI
+[ ] Token/auth is sent on technician API calls
+[ ] Loading/error/empty states are handled

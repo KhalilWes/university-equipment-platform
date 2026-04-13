@@ -9,7 +9,20 @@ const equipmentSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'La catégorie est requise'],
-    enum: ['computers', 'projectors', 'electronics', 'informatique', 'other'],
+    enum: [
+      'computers',
+      'projectors',
+      'electronics',
+      'informatique',
+      'other',
+      'laboratoire',
+      'ordinateurs',
+      'projecteur',
+      'projecteurs',
+      'electronique',
+      'électronique',
+      'autre'
+    ],
     lowercase: true
   },
   serialNumber: {
@@ -26,7 +39,7 @@ const equipmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Available', 'Out of Stock', 'Maintenance'],
+    enum: ['Available', 'Out of Stock', 'Maintenance', 'Disponible', 'Rupture de stock', 'En maintenance'],
     default: 'Available'
   },
   quantity: {

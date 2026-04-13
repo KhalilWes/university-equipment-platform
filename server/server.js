@@ -11,6 +11,7 @@ const reservationRoutes = require('./routes/reservationRoutes');
 const penaltyRoutes = require('./routes/penaltyRoutes');
 const { scheduleDailyOverdueCheck } = require('./jobs/checkOverdueReservations');
 
+
 const app = express();
 
 // Middlewares

@@ -220,6 +220,67 @@
   border: 1px dashed #cbd5e1;
 }
 
+.equipment-card-skeleton {
+  pointer-events: none;
+}
+
+.skeleton-box {
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-media {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+}
+
+.skeleton-badge {
+  width: 90px;
+  height: 28px;
+  border-radius: 20px;
+}
+
+.skeleton-title {
+  width: 72%;
+  height: 22px;
+  margin-bottom: 12px;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 14px;
+  margin-bottom: 10px;
+}
+
+.skeleton-line.short {
+  width: 64%;
+}
+
+.skeleton-tag {
+  width: 88px;
+  height: 22px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.skeleton-button {
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -376,6 +437,41 @@
 
 .modal-fields input:focus {
   border-color: #3b82f6;
+}
+
+.date-range-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 0;
+}
+
+.date-range-wrapper .student-day-picker {
+  --rdp-accent-color: #2563eb;
+  --rdp-background-color: #eff6ff;
+  --rdp-outline: 2px solid #2563eb;
+  --rdp-selected-border: 2px solid #2563eb;
+  --rdp-cell-size: 2.25rem;
+  --rdp-caption-font-size: 1rem;
+  --rdp-accent-color-dark: #1d4ed8;
+  --rdp-outline-selected: 2px solid #2563eb;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.date-range-wrapper .rdp-months {
+  justify-content: center;
+}
+
+.date-range-wrapper .rdp-month {
+  margin: 0;
+}
+
+.date-range-wrapper .rdp-caption {
+  padding-bottom: 0.5rem;
+}
+
+.date-range-wrapper .rdp-table {
+  max-width: 100%;
 }
 
 .modal-error {

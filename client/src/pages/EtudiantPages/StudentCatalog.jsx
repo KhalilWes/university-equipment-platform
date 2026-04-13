@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { DayPicker } from "react-day-picker";
+import toast from "react-hot-toast";
+import "react-day-picker/dist/style.css";
 import "./StudentCatalog.css";
 
-const today = new Date().toISOString().split("T")[0];
+const toInputDate = (date) => {
+  if (!date) return "";
+  return date.toISOString().split("T")[0];
+};
+
+const formatDate = (date) => {
+  if (!date) return "";
+  return date.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
 function StudentCatalog({ onAddReservation }) {
   const [equipmentData, setEquipmentData] = useState([]);
@@ -9,10 +24,10 @@ function StudentCatalog({ onAddReservation }) {
   const [category, setCategory] = useState("all");
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [startDate, setStartDate] = useState(today);
-  const [endDate, setEndDate] = useState(today);
+  const [dateRange, setDateRange] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const normalizeCategory = (value) => (value || "").toString().trim().toLowerCase();
   const formatCategoryLabel = (value) => {
@@ -51,11 +66,10 @@ function StudentCatalog({ onAddReservation }) {
   };
 
   const filteredData = equipmentData.filter((item) => {
-    const isAvailable = isItemAvailable(item);
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
       category === "all" || normalizeCategory(item.category) === category;
-    return isAvailable && matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory;
   });
 
   const categoryOptions = [
@@ -69,13 +83,13 @@ function StudentCatalog({ onAddReservation }) {
   const openModal = (item) => {
     if (!isItemAvailable(item)) {
       setErrorMessage("Cet équipement n'est pas disponible pour le moment.");
+      toast.error("Cet équipement n'est pas disponible pour le moment.");
       return;
     }
 
     setSelectedEquipment(item);
     setShowModal(true);
-    setStartDate(today);
-    setEndDate(today);
+    setDateRange(undefined);
     setErrorMessage("");
   };
 
@@ -85,33 +99,68 @@ function StudentCatalog({ onAddReservation }) {
     setErrorMessage("");
   };
 
-  const handleConfirmReservation = () => {
+  const handleConfirmReservation = async () => {
     if (!selectedEquipment) return;
-    if (!startDate || !endDate) {
+    if (!dateRange?.from || !dateRange?.to) {
       setErrorMessage("Veuillez sélectionner une plage de dates valide.");
       return;
     }
-    if (endDate < startDate) {
+    if (dateRange.to < dateRange.from) {
       setErrorMessage("La date de fin doit être égale ou postérieure à la date de début.");
       return;
     }
 
-    const status = startDate > today ? "En attente" : "Approuvée";
-    const reservation = {
-      id: Date.now(),
-      equipmentId: selectedEquipment._id,
-      name: selectedEquipment.name,
-      startDate,
-      endDate,
-      status,
-    };
+    const startDate = toInputDate(dateRange.from);
+    const endDate = toInputDate(dateRange.to);
 
-    if (onAddReservation) {
-      onAddReservation(reservation);
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
+
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/reservations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          equipmentId: selectedEquipment._id,
+          startDate,
+          endDate,
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || !result.success) {
+        const message = result.message || "Impossible de créer la réservation.";
+        setErrorMessage(message);
+        toast.error(message);
+        return;
+      }
+
+      if (onAddReservation) {
+        const created = result.data || {};
+        onAddReservation({
+          id: created._id || Date.now(),
+          equipmentId: selectedEquipment._id,
+          name: selectedEquipment.name,
+          startDate: created.startDate || startDate,
+          endDate: created.endDate || endDate,
+          status: created.status || "pending",
+        });
+      }
+
+      closeModal();
+      toast.success("Réservation créée avec succès.");
+    } catch (err) {
+      const message = "Erreur réseau lors de la réservation.";
+      setErrorMessage(message);
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    alert(`Réservation confirmée du ${startDate} au ${endDate} pour ${selectedEquipment.name}.`);
-    closeModal();
   };
 
   return (
@@ -149,7 +198,19 @@ function StudentCatalog({ onAddReservation }) {
 
       <section className="equipment-grid">
         {isLoading ? (
-          <div className="inventory-status">Chargement du matériel...</div>
+          Array.from({ length: 3 }).map((_, index) => (
+            <article key={`skeleton-${index}`} className="equipment-card equipment-card-skeleton">
+              <div className="equipment-card-top">
+                <div className="skeleton-box skeleton-media" />
+                <div className="skeleton-box skeleton-badge" />
+              </div>
+              <div className="skeleton-box skeleton-title" />
+              <div className="skeleton-box skeleton-line" />
+              <div className="skeleton-box skeleton-line short" />
+              <div className="skeleton-box skeleton-tag" />
+              <div className="skeleton-box skeleton-button" />
+            </article>
+          ))
         ) : filteredData.length === 0 ? (
           <div className="inventory-status">Aucun équipement ne correspond à votre recherche.</div>
         ) : (
@@ -194,8 +255,8 @@ function StudentCatalog({ onAddReservation }) {
       </section>
 
       {showModal && selectedEquipment && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true">
-          <div className="modal-card">
+        <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={closeModal}>
+          <div className="modal-card" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <div>
                 <p className="modal-title">Confirmer la réservation</p>
@@ -211,28 +272,23 @@ function StudentCatalog({ onAddReservation }) {
               <div className="modal-fields">
                 <label>
                   Date de début
-                  <input
-                    type="date"
-                    min={today}
-                    value={startDate}
-                    onChange={(e) => {
-                      setStartDate(e.target.value);
-                      if (e.target.value > endDate) {
-                        setEndDate(e.target.value);
-                      }
-                    }}
-                  />
-                </label>
-                <label>
-                  Date de fin
-                  <input
-                    type="date"
-                    min={startDate}
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
+                  <div className="date-range-wrapper">
+                    <DayPicker
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      disabled={{ before: new Date() }}
+                      numberOfMonths={1}
+                      defaultMonth={new Date()}
+                      className="student-day-picker"
+                    />
+                  </div>
                 </label>
               </div>
+              <p className="modal-label">
+                Période sélectionnée : {dateRange?.from ? formatDate(dateRange.from) : "—"}
+                {dateRange?.to ? ` au ${formatDate(dateRange.to)}` : ""}
+              </p>
               {errorMessage && <p className="modal-error">{errorMessage}</p>}
             </div>
 
@@ -240,8 +296,13 @@ function StudentCatalog({ onAddReservation }) {
               <button type="button" className="modal-button modal-cancel" onClick={closeModal}>
                 Annuler
               </button>
-              <button type="button" className="modal-button modal-confirm" onClick={handleConfirmReservation}>
-                Confirmer la réservation
+              <button
+                type="button"
+                className="modal-button modal-confirm"
+                onClick={handleConfirmReservation}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Envoi..." : "Confirmer la réservation"}
               </button>
             </div>
           </div>
