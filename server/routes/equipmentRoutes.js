@@ -241,6 +241,134 @@ router.put('/:id/status', authMiddleware, async (req, res) => {
 });
 
 /**
+ * POST /api/equipment/:id/interventions
+ * Ajoute une intervention de maintenance et peut mettre à jour le statut.
+ * Accessible par : Technician, Admin.
+ */
+router.post('/:id/interventions', authMiddleware, async (req, res) => {
+  try {
+    if (!['Technician', 'Admin'].includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Accès refusé. Technician/Admin uniquement.'
+      });
+    }
+
+    if (!req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilisateur non authentifié'
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID d'équipement invalide"
+      });
+    }
+
+    const equipment = await Equipment.findById(req.params.id);
+    if (!equipment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Équipement non trouvé'
+      });
+    }
+
+    const { note = '', statusAfter } = req.body || {};
+    const noteValue = typeof note === 'string' ? note.trim() : '';
+
+    if (!noteValue) {
+      return res.status(400).json({
+        success: false,
+        message: 'Le champ note est requis'
+      });
+    }
+
+    const allowedStatuses = Equipment.schema.path('status')?.enumValues || [];
+    if (statusAfter !== undefined && !allowedStatuses.includes(statusAfter)) {
+      return res.status(400).json({
+        success: false,
+        message: `Statut invalide. Utilisez: ${allowedStatuses.join(', ')}`
+      });
+    }
+
+    const statusBefore = equipment.status;
+    const nextStatus = statusAfter !== undefined ? statusAfter : statusBefore;
+
+    equipment.status = nextStatus;
+
+    equipment.interventionLogs.push({
+      technicianId: req.user.id,
+      note: noteValue,
+      statusBefore,
+      statusAfter: nextStatus
+    });
+
+    await equipment.save();
+
+    const addedLog = equipment.interventionLogs[equipment.interventionLogs.length - 1];
+    return res.status(201).json({
+      success: true,
+      message: 'Intervention ajoutée avec succès',
+      data: {
+        equipment,
+        intervention: addedLog
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Erreur lors de l'ajout de l'intervention",
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/equipment/:id/interventions
+ * Retourne l'historique des interventions (trié du plus récent au plus ancien).
+ * Accessible par : utilisateur authentifié.
+ */
+router.get('/:id/interventions', authMiddleware, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID d'équipement invalide"
+      });
+    }
+
+    const equipment = await Equipment.findById(req.params.id)
+      .populate('interventionLogs.technicianId', 'username email role');
+
+    if (!equipment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Équipement non trouvé'
+      });
+    }
+
+    const interventions = [...(equipment.interventionLogs || [])].sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Historique des interventions récupéré avec succès',
+      data: interventions
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Erreur lors de la récupération des interventions",
+      error: error.message
+    });
+  }
+});
+
+/**
  * DELETE /api/equipment/empty-trash
  * Supprime définitivement TOUS les équipements marqués comme supprimés.
  */

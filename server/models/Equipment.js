@@ -72,6 +72,32 @@ const equipmentSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  interventionLogs: [
+    {
+      technicianId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+      },
+      note: {
+        type: String,
+        trim: true,
+        default: ''
+      },
+      statusBefore: {
+        type: String,
+        required: true
+      },
+      statusAfter: {
+        type: String,
+        required: true
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now
