@@ -1,3 +1,14 @@
 node_modules/
-.env
 .DS_Store
+
+# Build artifacts
+client/dist/
+server/dist/
+
+# Local planning / AI prompt tracking files (do not commit)
+PROJECT_ROADMAP.md
+*_TASKS_AI_PROMPTS.txt
+
+# Local editor/system artifacts
+.vscode/
+*.log

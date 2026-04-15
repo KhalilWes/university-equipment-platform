@@ -57,7 +57,7 @@ function Login() {
             } else {
                 setError(data.message || 'Identifiants ou rôle incorrects');
             }
-        } catch (err) {
+        } catch {
             setIsLoading(false);
             setError('Erreur de connexion au serveur backend');
         }

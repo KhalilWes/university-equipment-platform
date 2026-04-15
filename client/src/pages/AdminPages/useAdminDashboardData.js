@@ -79,6 +79,50 @@ async function fetchOptionalList(url, headers) {
   }
 }
 
+async function fetchDashboardLists() {
+  const token = localStorage.getItem('token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+  const [usersData, equipmentData, reservationsData, penaltiesData] =
+    await Promise.all([
+      fetchOptionalList('http://localhost:5000/api/auth/users', headers),
+      fetchOptionalList('http://localhost:5000/api/equipment', headers),
+      fetchOptionalList('http://localhost:5000/api/reservations', headers),
+      fetchOptionalList('http://localhost:5000/api/penalties', headers),
+    ])
+
+  const successCount = [
+    usersData,
+    equipmentData,
+    reservationsData,
+    penaltiesData,
+  ].filter(Boolean).length
+
+  return {
+    usersData,
+    equipmentData,
+    reservationsData,
+    penaltiesData,
+    successCount,
+  }
+}
+
+function deriveDataSource(successCount) {
+  if (successCount === 0) return 'mock'
+  if (successCount < 4) return 'mixed'
+  return 'api'
+}
+
+function deriveWarning(successCount) {
+  if (successCount === 0) {
+    return 'Endpoints indisponibles: affichage des donnees de demonstration.'
+  }
+  if (successCount < 4) {
+    return 'Certaines sources API sont indisponibles: dashboard partiellement alimente par des donnees de demonstration.'
+  }
+  return ''
+}
+
 export function useAdminDashboardData() {
   const [loading, setLoading] = useState(true)
   const [warning, setWarning] = useState('')
@@ -91,49 +135,55 @@ export function useAdminDashboardData() {
   const loadDashboardData = useCallback(async () => {
     setLoading(true)
     setWarning('')
-    const token = localStorage.getItem('token')
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
-
-    const [usersData, equipmentData, reservationsData, penaltiesData] =
-      await Promise.all([
-        fetchOptionalList('http://localhost:5000/api/auth/users', headers),
-        fetchOptionalList('http://localhost:5000/api/equipment', headers),
-        fetchOptionalList('http://localhost:5000/api/reservations', headers),
-        fetchOptionalList('http://localhost:5000/api/penalties', headers),
-      ])
+    const {
+      usersData,
+      equipmentData,
+      reservationsData,
+      penaltiesData,
+      successCount,
+    } = await fetchDashboardLists()
 
     if (usersData) setStudents(usersData)
     if (equipmentData) setEquipment(equipmentData)
     if (reservationsData) setReservations(reservationsData)
     if (penaltiesData) setPenalties(penaltiesData)
 
-    const successCount = [
-      usersData,
-      equipmentData,
-      reservationsData,
-      penaltiesData,
-    ].filter(Boolean).length
-
-    if (successCount === 0) {
-      setDataSource('mock')
-      setWarning(
-        'Endpoints indisponibles: affichage des donnees de demonstration.'
-      )
-    } else if (successCount < 4) {
-      setDataSource('mixed')
-      setWarning(
-        'Certaines sources API sont indisponibles: dashboard partiellement alimente par des donnees de demonstration.'
-      )
-    } else {
-      setDataSource('api')
-    }
+    setDataSource(deriveDataSource(successCount))
+    setWarning(deriveWarning(successCount))
 
     setLoading(false)
   }, [])
 
   useEffect(() => {
-    loadDashboardData()
-  }, [loadDashboardData])
+    let isMounted = true
+
+    const runInitialLoad = async () => {
+      const {
+        usersData,
+        equipmentData,
+        reservationsData,
+        penaltiesData,
+        successCount,
+      } = await fetchDashboardLists()
+
+      if (!isMounted) return
+
+      if (usersData) setStudents(usersData)
+      if (equipmentData) setEquipment(equipmentData)
+      if (reservationsData) setReservations(reservationsData)
+      if (penaltiesData) setPenalties(penaltiesData)
+
+      setDataSource(deriveDataSource(successCount))
+      setWarning(deriveWarning(successCount))
+      setLoading(false)
+    }
+
+    runInitialLoad()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const stats = useMemo(() => {
     const normalizedReservations = reservations.map((item) =>

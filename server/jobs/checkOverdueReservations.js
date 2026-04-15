@@ -49,8 +49,11 @@ async function checkOverdueReservations(options = {}) {
       userId: reservation.userId,
       reservationId: reservation._id,
       daysLate,
+      type: 'retard',
+      description: `${daysLate} jour(s) de retard`,
       penaltyAmount: daysLate * penaltyPerDay,
-      status: 'unpaid'
+      status: 'unpaid',
+      source: 'auto-overdue'
     });
 
     created += 1;

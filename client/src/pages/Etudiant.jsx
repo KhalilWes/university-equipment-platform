@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Etudiant.css';
 
@@ -8,47 +8,28 @@ import MyReservations from './EtudiantPages/MyReservations';
 import MonProfil from './EtudiantPages/MonProfil';
 
 /**
- * Etudiant – layout principal.
- * Structure : sidebar 20 % (nav boutons) | zone de contenu 80 % (rendu par state)
- * Utilise useState au lieu de Routes pour éviter tout problème de superposition.
+ * Etudiant – student portal layout.
+ * Structure: sidebar 20% | main content 80%.
+ * Each sub-page fetches its own data from the API.
  */
 export default function Etudiant() {
     const navigate = useNavigate();
-
-    // Page active : 'Profil' par défaut
     const [activePage, setActivePage] = useState('Profil');
 
-    const [reservations, setReservations] = useState([]);
-    const [penalties, setPenalties] = useState([
-        { id: 1, type: "Retard", title: "Appareil photo en retard", amount: 15, date: "2023-11-01" }
-    ]);
+    // Read display name from localStorage (set on login)
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const userName = storedUser.username || 'Étudiant';
 
-    // Récupérer l'utilisateur depuis le LocalStorage (issu du backend après login/register)
-    const storedUserStr = localStorage.getItem('user');
-    const storedUser = storedUserStr ? JSON.parse(storedUserStr) : {};
-
-    const user = {
-        name: storedUser.username || "Sophie Martin",
-        email: storedUser.email || "sophie.martin@etu.univ.fr",
-        phone: "06 12 34 56 78" // Valeur par défaut car pas géré dans la DB actuelle
-    };
-
-    const handleAddReservation = (res) => {
-        setReservations([...reservations, res]);
-    };
-
-    // Retourne le composant correspondant à la page active
     const renderPage = () => {
         switch (activePage) {
-            case 'Catalogue': return <StudentCatalog onAddReservation={handleAddReservation} />;
+            case 'Catalogue':   return <StudentCatalog />;
             case 'reservation': return <MyReservations />;
-            case 'Penalite': return <MesPenalites penalties={penalties} />;
-            case 'Profil': return <MonProfil user={user} reservations={reservations} />;
-            default: return <MonProfil user={user} reservations={reservations} />;
+            case 'Penalite':    return <MesPenalites />;
+            case 'Profil':      return <MonProfil />;
+            default:            return <MonProfil />;
         }
     };
 
-    // Helper : classe CSS selon si l'item est actif
     const navClass = (page) =>
         'nav-item' + (activePage === page ? ' active' : '');
 
@@ -58,7 +39,6 @@ export default function Etudiant() {
             {/* ── SIDEBAR ── */}
             <aside className="sidebar">
 
-                {/* Logo + titre */}
                 <div className="sidebar-brand">
                     <div className="brand-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -73,9 +53,7 @@ export default function Etudiant() {
                     </div>
                 </div>
 
-                {/* Navigation */}
                 <nav className="sidebar-nav">
-
                     <button className={navClass('Profil')} onClick={() => setActivePage('Profil')}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -109,17 +87,14 @@ export default function Etudiant() {
                         </svg>
                         Mes pénalités
                     </button>
-
                 </nav>
 
-                {/* Carte utilisateur */}
                 <div className="sidebar-user">
                     <p className="user-label">Connecté en tant que</p>
-                    <p className="user-name">{user.name}</p>
+                    <p className="user-name">{userName}</p>
                     <p className="user-id">Étudiant (Connecté)</p>
                 </div>
 
-                {/* Déconnexion */}
                 <button className="btn-disconnect" onClick={() => {
                     localStorage.removeItem('isLoggedIn');
                     localStorage.removeItem('token');
@@ -136,7 +111,7 @@ export default function Etudiant() {
 
             </aside>
 
-            {/* ── CONTENU PRINCIPAL – remplace l'ancien contenu à chaque clic ── */}
+            {/* ── MAIN CONTENT ── */}
             <main className="main-content">
                 {renderPage()}
             </main>

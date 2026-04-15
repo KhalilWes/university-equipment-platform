@@ -103,7 +103,7 @@ function SignIn() {
                 navigate('/');
             }
 
-        } catch (err) {
+        } catch {
             setError('Erreur de connexion au serveur backend (vérifier que le serveur sur :5000 est allumé)');
             setIsLoading(false);
         }

@@ -1,9 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./MesPenalites.css";
 
-function MesPenalites({ penalties }) {
+function MesPenalites() {
+  const [penalties, setPenalties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchPenalties = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/penalties', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'Erreur lors du chargement des pénalités');
+        }
+
+        // Filter penalties for current user (students see only their own)
+        setPenalties(data.data || []);
+      } catch (err) {
+        console.error('Error fetching penalties:', err);
+        setError(err.message || 'Erreur de chargement');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPenalties();
+  }, []);
+
   const totalPenalties = penalties.length;
-  const totalAmount = penalties.reduce((sum, item) => sum + item.amount, 0);
+  const totalAmount = penalties.reduce((sum, item) => sum + (item.penaltyAmount || 0), 0);
+
+  if (loading) {
+    return <main className="penalty-page"><p className="loading-text">Chargement des pénalités...</p></main>;
+  }
+
+  if (error) {
+    return <main className="penalty-page"><p className="error-text">{error}</p></main>;
+  }
 
   return (
     <main className="penalty-page">
@@ -40,7 +79,7 @@ function MesPenalites({ penalties }) {
           </div>
           <div className="penalty-stat-text orange-text">
             <span>Montant total</span>
-            <strong>{totalAmount} €</strong>
+            <strong>{totalAmount.toFixed(2)} DT</strong>
           </div>
         </article>
       </section>
@@ -51,15 +90,15 @@ function MesPenalites({ penalties }) {
         ) : (
           <div className="penalty-grid">
             {penalties.map((penalty) => (
-              <div key={penalty.id} className="penalty-card">
+              <div key={penalty._id} className="penalty-card">
                 <div className="penalty-card-top">
                   <span className="penalty-emoji">⏰</span>
-                  <span className="penalty-badge">{penalty.type}</span>
+                  <span className="penalty-badge">{penalty.status === 'paid' ? 'Payée' : 'Non payée'}</span>
                 </div>
-                <h3>{penalty.title}</h3>
+                <h3>Pénalité de retard</h3>
                 <div className="penalty-card-footer">
-                  <div className="penalty-date">{penalty.date}</div>
-                  <div className="penalty-amount">{penalty.amount} €</div>
+                  <div className="penalty-date">{new Date(penalty.createdAt).toLocaleDateString('fr-FR')}</div>
+                  <div className="penalty-amount">{penalty.penaltyAmount} DT</div>
                 </div>
               </div>
             ))}

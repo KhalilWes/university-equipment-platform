@@ -1,158 +1,143 @@
 import { useEffect, useMemo, useState } from 'react';
+import './Maintenance.css';
 
-const API_URL = 'http://localhost:5000/api/equipment';
+const API_URL = 'http://localhost:5000/api/maintenance';
 
-function requiresMaintenance(item) {
-    return item.status === 'Maintenance' || item.condition === 'Poor' || item.condition === 'Under Maintenance';
-}
-
-function formatCategory(category) {
-    const map = {
-        computers: 'Ordinateurs',
-        projectors: 'Projecteurs',
-        electronics: 'Electronique',
-        informatique: 'Informatique',
-        other: 'Autre'
-    };
-
-    return map[category] || category;
+function formatDate(value) {
+    if (!value) return 'N/A';
+    return new Date(value).toLocaleDateString('fr-FR');
 }
 
 export default function Maintenance() {
-    const [equipment, setEquipment] = useState([]);
+    const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [updatingId, setUpdatingId] = useState('');
     const [feedback, setFeedback] = useState('');
+    const [updatingId, setUpdatingId] = useState('');
 
-    useEffect(() => {
-        const fetchEquipment = async () => {
-            setLoading(true);
-            setError('');
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(API_URL, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-
-                const result = await response.json();
-                if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Impossible de charger la maintenance');
-                }
-
-                setEquipment(result.data || []);
-            } catch (fetchError) {
-                setError(fetchError.message || 'Erreur serveur');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchEquipment();
-    }, []);
-
-    const maintenanceItems = useMemo(
-        () => equipment.filter((item) => !item.isDeleted && requiresMaintenance(item)),
-        [equipment]
-    );
-
-    const handleStatusUpdate = async (equipmentId, status) => {
-        setUpdatingId(equipmentId);
+    const fetchTickets = async () => {
+        setLoading(true);
         setError('');
-        setFeedback('');
-
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_URL}/${equipmentId}/status`, {
-                method: 'PUT',
+            const response = await fetch(API_URL, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Impossible de charger les tickets maintenance');
+            }
+            setTickets(result.data || []);
+        } catch (fetchError) {
+            setError(fetchError.message || 'Erreur serveur');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTickets();
+    }, []);
+
+    const openTickets = useMemo(() => tickets.filter((item) => item.status === 'open'), [tickets]);
+    const completedTickets = useMemo(() => tickets.filter((item) => item.status === 'completed'), [tickets]);
+
+    const handleComplete = async (ticketId) => {
+        setUpdatingId(ticketId);
+        setError('');
+        setFeedback('');
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/${ticketId}/complete`, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ status })
+                }
             });
-
             const result = await response.json();
             if (!response.ok || !result.success) {
-                throw new Error(result.message || 'Mise a jour impossible');
+                throw new Error(result.message || 'Finalisation impossible');
             }
 
-            setEquipment((current) =>
-                current.map((item) => (item._id === equipmentId ? { ...item, status } : item))
+            setTickets((current) =>
+                current.map((item) => (item._id === ticketId ? result.data : item))
             );
-            setFeedback(`Statut mis a jour: ${status}`);
-        } catch (updateError) {
-            setError(updateError.message || 'Erreur serveur');
+            setFeedback('Maintenance marquee terminee. Les stocks sont fusionnes automatiquement.');
+        } catch (completeError) {
+            setError(completeError.message || 'Erreur serveur');
         } finally {
             setUpdatingId('');
         }
     };
 
     return (
-        <section>
-            <h2 style={{ marginBottom: '6px' }}>Suivi maintenance</h2>
-            <p style={{ color: '#475467', marginTop: 0, marginBottom: '20px' }}>
-                Gere les equipements defectueux et bascule leur statut depuis cette page.
-            </p>
+        <section className="tech-maintenance-page">
+            <h2 className="tech-title">Interventions maintenance</h2>
+            <p className="tech-subtitle">{openTickets.length} ticket(s) a traiter</p>
 
-            {feedback && <p style={{ color: '#05603a' }}>{feedback}</p>}
-            {error && <p style={{ color: '#b42318' }}>Erreur: {error}</p>}
+            {feedback && <p className="tech-feedback">{feedback}</p>}
+            {error && <p className="tech-error">Erreur: {error}</p>}
 
             {loading ? (
-                <p>Chargement des equipements en maintenance...</p>
-            ) : maintenanceItems.length === 0 ? (
-                <p>Aucun equipement a traiter actuellement.</p>
+                <p className="tech-loading">Chargement...</p>
             ) : (
-                <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e4e7ec', overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ background: '#f9fafb', textAlign: 'left' }}>
-                                <th style={{ padding: '12px' }}>Nom</th>
-                                <th style={{ padding: '12px' }}>Categorie</th>
-                                <th style={{ padding: '12px' }}>Etat</th>
-                                <th style={{ padding: '12px' }}>Statut actuel</th>
-                                <th style={{ padding: '12px' }}>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {maintenanceItems.map((item) => {
-                                const isBusy = updatingId === item._id;
-                                const nextStatus = item.status === 'Maintenance' ? 'Available' : 'Maintenance';
-                                const actionLabel = item.status === 'Maintenance' ? 'Remettre disponible' : 'Passer en maintenance';
-
-                                return (
-                                    <tr key={item._id} style={{ borderTop: '1px solid #e4e7ec' }}>
-                                        <td style={{ padding: '12px', fontWeight: 600 }}>{item.name}</td>
-                                        <td style={{ padding: '12px' }}>{formatCategory(item.category)}</td>
-                                        <td style={{ padding: '12px' }}>{item.condition}</td>
-                                        <td style={{ padding: '12px' }}>{item.status}</td>
-                                        <td style={{ padding: '12px' }}>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleStatusUpdate(item._id, nextStatus)}
-                                                disabled={isBusy}
-                                                style={{
-                                                    border: 'none',
-                                                    borderRadius: '8px',
-                                                    padding: '8px 10px',
-                                                    cursor: isBusy ? 'not-allowed' : 'pointer',
-                                                    background: nextStatus === 'Available' ? '#d1fadf' : '#fee4e2',
-                                                    color: nextStatus === 'Available' ? '#05603a' : '#912018',
-                                                    fontWeight: 600
-                                                }}
-                                            >
-                                                {isBusy ? 'Mise a jour...' : actionLabel}
-                                            </button>
-                                        </td>
+                <>
+                    <h3 className="tech-section-title">En cours</h3>
+                    {openTickets.length === 0 ? (
+                        <div className="tech-empty">Aucun ticket en attente.</div>
+                    ) : (
+                        <div className="tech-table-wrap">
+                            <table className="tech-table">
+                                <thead>
+                                    <tr>
+                                        <th>Materiel</th>
+                                        <th>Panne</th>
+                                        <th>Quantite</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
                                     </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                                </thead>
+                                <tbody>
+                                    {openTickets.map((ticket) => {
+                                        const isBusy = updatingId === ticket._id;
+                                        return (
+                                            <tr key={ticket._id}>
+                                                <td>{ticket.equipmentId?.name || 'Materiel inconnu'}</td>
+                                                <td>{ticket.issue}</td>
+                                                <td>{ticket.quantity}</td>
+                                                <td>{formatDate(ticket.createdAt)}</td>
+                                                <td>
+                                                    <button
+                                                        type="button"
+                                                        className="btn-fix"
+                                                        onClick={() => handleComplete(ticket._id)}
+                                                        disabled={isBusy}
+                                                    >
+                                                        {isBusy ? 'Traitement...' : 'Marquer corrige'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    <h3 className="tech-section-title">Historique</h3>
+                    {completedTickets.length === 0 ? (
+                        <div className="tech-empty">Aucune maintenance terminee.</div>
+                    ) : (
+                        <ul className="tech-history-list">
+                            {completedTickets.map((ticket) => (
+                                <li key={ticket._id}>
+                                    {ticket.equipmentId?.name || 'Materiel inconnu'} · Qty {ticket.quantity} · termine le {formatDate(ticket.completedAt)}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </>
             )}
         </section>
     );

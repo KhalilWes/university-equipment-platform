@@ -154,7 +154,7 @@ function StudentCatalog({ onAddReservation }) {
 
       closeModal();
       toast.success("Réservation créée avec succès.");
-    } catch (err) {
+    } catch {
       const message = "Erreur réseau lors de la réservation.";
       setErrorMessage(message);
       toast.error(message);

@@ -1,6 +1,8 @@
 // UI Components exports
-export { Button, buttonVariants } from './button'
-export { Badge, badgeVariants } from './badge'
+export { Button } from './button'
+export { buttonVariants } from './button-variants'
+export { Badge } from './badge'
+export { badgeVariants } from './badge-variants'
 export {
   Dialog,
   DialogTrigger,

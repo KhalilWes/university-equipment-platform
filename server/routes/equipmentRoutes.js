@@ -224,6 +224,21 @@ router.put('/:id/status', authMiddleware, async (req, res) => {
     }
 
     equipment.status = status;
+
+    // Keep condition/status aligned and prevent "fixed" items from becoming unusable.
+    if (status === 'Available') {
+      if (equipment.condition === 'Under Maintenance' || equipment.condition === 'Poor') {
+        equipment.condition = 'Good';
+      }
+      if ((equipment.quantity || 0) <= 0) {
+        equipment.quantity = 1;
+      }
+    }
+
+    if (status === 'Maintenance') {
+      equipment.condition = 'Under Maintenance';
+    }
+
     await equipment.save();
 
     return res.status(200).json({

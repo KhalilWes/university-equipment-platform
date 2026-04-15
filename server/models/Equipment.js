@@ -106,10 +106,17 @@ const equipmentSchema = new mongoose.Schema({
 
 // Middleware pour mettre à jour automatiquement le statut si la quantité atteint 0
 equipmentSchema.pre('save', function() {
-  // On ne met à jour automatiquement que si l'équipement n'est pas en maintenance
-  if (this.status !== 'Maintenance') {
-    this.status = this.quantity > 0 ? 'Available' : 'Out of Stock';
+  const statusText = (this.status || '').toString().toLowerCase();
+  const conditionText = (this.condition || '').toString();
+  const isMaintenance = statusText.includes('maint') || conditionText === 'Under Maintenance';
+
+  // Canonicalize maintenance states so all UIs can rely on one status value.
+  if (isMaintenance) {
+    this.status = 'Maintenance';
+    return;
   }
+
+  this.status = this.quantity > 0 ? 'Available' : 'Out of Stock';
 });
 
 equipmentSchema.methods.checkAvailability = function() {

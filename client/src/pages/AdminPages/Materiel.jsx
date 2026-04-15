@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
+
+const MAINTENANCE_SUMMARY_API = "http://localhost:5000/api/maintenance/summary/open";
 
 export default function Materiel() {
   const [equipment, setEquipment] = useState([]);
@@ -11,6 +13,7 @@ export default function Materiel() {
   const [view, setView] = useState("inventory"); // "inventory" ou "trash"
   const [error, setError] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const [maintenanceSummary, setMaintenanceSummary] = useState({});
 
   const [formData, setFormData] = useState({
     name: "",
@@ -22,11 +25,7 @@ export default function Materiel() {
     emoji: "📦",
   });
 
-  useEffect(() => {
-    fetchEquipment();
-  }, [view]);
-
-  const fetchEquipment = async () => {
+  const fetchEquipment = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -37,13 +36,35 @@ export default function Materiel() {
       const data = await res.json();
       if (data.success) {
         setEquipment(data.data);
+
+        if (view === "inventory") {
+          const summaryRes = await fetch(MAINTENANCE_SUMMARY_API, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const summaryData = await summaryRes.json();
+          if (summaryRes.ok && summaryData.success) {
+            const summaryMap = (summaryData.data || []).reduce((acc, item) => {
+              acc[String(item._id)] = Number(item.quantityInMaintenance || 0);
+              return acc;
+            }, {});
+            setMaintenanceSummary(summaryMap);
+          } else {
+            setMaintenanceSummary({});
+          }
+        } else {
+          setMaintenanceSummary({});
+        }
       }
     } catch (err) {
       console.error("Erreur chargement:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [view]);
+
+  useEffect(() => {
+    fetchEquipment();
+  }, [fetchEquipment]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer cet équipement ?")) return;
@@ -201,16 +222,50 @@ export default function Materiel() {
       } else {
         setError(result.error || result.message || "Une erreur est survenue");
       }
-    } catch (err) {
+    } catch {
       setError("Erreur serveur");
     }
   };
 
-  const filteredItems = equipment.filter(
-    (item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.serialNumber.toLowerCase().includes(search.toLowerCase())
-  );
+  const normalizedSearch = search.toLowerCase();
+
+  const displayedItems = view === "inventory"
+    ? equipment.flatMap((item) => {
+        const inMaintenanceQty = Number(maintenanceSummary[item._id] || 0);
+        const availableQty = Number(item.quantity || 0);
+        const rows = [];
+
+        if (availableQty > 0 || inMaintenanceQty === 0) {
+          rows.push({
+            ...item,
+            rowType: "available",
+            rowId: `${item._id}-available`,
+            displayCondition: item.condition || "Good",
+            displayStatus: availableQty > 0 ? "Available" : "Out of Stock",
+            displayQuantity: availableQty,
+          });
+        }
+
+        if (inMaintenanceQty > 0) {
+          rows.push({
+            ...item,
+            rowType: "maintenance",
+            rowId: `${item._id}-maintenance`,
+            displayCondition: "Under Maintenance",
+            displayStatus: "Maintenance",
+            displayQuantity: inMaintenanceQty,
+          });
+        }
+
+        return rows;
+      })
+    : equipment;
+
+  const filteredItems = displayedItems.filter((item) => {
+    const name = String(item.name || "").toLowerCase();
+    const serial = String(item.serialNumber || "").toLowerCase();
+    return name.includes(normalizedSearch) || serial.includes(normalizedSearch);
+  });
 
   return (
     <div style={{ padding: '20px' }}>
@@ -258,13 +313,14 @@ export default function Materiel() {
               <th style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>S/N</th>
               <th style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>Catégorie</th>
               <th style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>État</th>
+              <th style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>Statut</th>
               <th style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{view === "inventory" ? "Qté" : "Supprimé le"}</th>
               <th style={{ padding: '12px', borderBottom: '1px solid #ddd', textAlign: 'center' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredItems.map((item) => (
-              <tr key={item._id} style={{ borderBottom: '1px solid #eee' }}>
+              <tr key={item.rowId || item._id} style={{ borderBottom: '1px solid #eee' }}>
                 <td style={{ padding: '12px' }}>
                   {item.imageUrl ? (
                     <img src={item.imageUrl} alt={item.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
@@ -275,16 +331,21 @@ export default function Materiel() {
                 <td style={{ padding: '12px', fontWeight: 'bold' }}>{item.name}</td>
                 <td style={{ padding: '12px', color: '#666' }}>{item.serialNumber}</td>
                 <td style={{ padding: '12px' }}>{item.category}</td>
-                <td style={{ padding: '12px' }}>{item.condition}</td>
+                <td style={{ padding: '12px' }}>{item.displayCondition || item.condition}</td>
+                <td style={{ padding: '12px' }}>{item.displayStatus || item.status}</td>
                 <td style={{ padding: '12px' }}>
-                  {view === "inventory" ? item.quantity : new Date(item.deletedAt).toLocaleDateString()}
+                  {view === "inventory" ? (item.displayQuantity ?? item.quantity) : new Date(item.deletedAt).toLocaleDateString()}
                 </td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>
                   {view === "inventory" ? (
-                    <>
-                      <button onClick={() => handleOpenEdit(item)} style={{ marginRight: '8px', padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Modifier</button>
-                      <button onClick={() => handleDelete(item._id)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Supprimer</button>
-                    </>
+                    item.rowType === "maintenance" ? (
+                      <span style={{ color: '#0d9488', fontWeight: 600 }}>Géré via maintenance</span>
+                    ) : (
+                      <>
+                        <button onClick={() => handleOpenEdit(item)} style={{ marginRight: '8px', padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Modifier</button>
+                        <button onClick={() => handleDelete(item._id)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Supprimer</button>
+                      </>
+                    )
                   ) : (
                     <>
                       <button onClick={() => handleRestore(item._id)} style={{ marginRight: '8px', padding: '6px 12px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Restaurer</button>

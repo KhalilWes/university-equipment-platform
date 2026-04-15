@@ -25,6 +25,21 @@ const userSchema = new mongoose.Schema({
     enum: ['Admin', 'Student', 'Technician'],
     default: 'Student'
   },
+  firstName: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  lastName: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  specialization: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   createdAt: {
     type: Date,
     default: Date.now

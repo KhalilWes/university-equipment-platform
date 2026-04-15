@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Technicien.css';
 
 import Tableau from './TechnicienPages/Tableau';
 import Maintenance from './TechnicienPages/Maintenance';
 import Profil from './TechnicienPages/Profil';
+
+function readStoredUser() {
+    try {
+        const raw = localStorage.getItem('user');
+        return raw ? JSON.parse(raw) : {};
+    } catch {
+        return {};
+    }
+}
 
 /**
  * Technicien – layout principal.
@@ -16,11 +25,22 @@ export default function Technicien() {
 
     // Page active : 'Tableau' par défaut
     const [activePage, setActivePage] = useState('Tableau');
+    const [currentUser, setCurrentUser] = useState(readStoredUser());
 
     // Récupération de l'utilisateur connecté via backend/localStorage
-    const storedUserStr = localStorage.getItem('user');
-    const storedUser = storedUserStr ? JSON.parse(storedUserStr) : {};
-    const techName = storedUser.username || "Jean Dupont";
+    const techName = currentUser.username || 'Jean Dupont';
+    const techSpecialization = currentUser.specialization || 'Informatique et Électronique';
+
+    useEffect(() => {
+        const syncUser = () => setCurrentUser(readStoredUser());
+
+        window.addEventListener('user-updated', syncUser);
+        window.addEventListener('storage', syncUser);
+        return () => {
+            window.removeEventListener('user-updated', syncUser);
+            window.removeEventListener('storage', syncUser);
+        };
+    }, []);
 
     // Retourne le composant correspondant à la page active
     const renderPage = () => {
@@ -95,7 +115,7 @@ export default function Technicien() {
                 <div className="sidebar-user">
                     <p className="user-label">Connecté en tant que</p>
                     <p className="user-name">{techName}</p>
-                    <p className="user-id">Informatique et Électronique</p>
+                    <p className="user-id">{techSpecialization}</p>
                 </div>
 
                 {/* Déconnexion */}

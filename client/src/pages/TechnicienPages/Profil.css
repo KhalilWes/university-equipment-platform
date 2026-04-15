@@ -1,0 +1,233 @@
+.tech-profile-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 6px 2px 16px;
+}
+
+.tech-profile-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 34px;
+  line-height: 1.06;
+}
+
+.tech-profile-subtitle {
+  margin: 6px 0 12px;
+  color: #64748b;
+  font-size: 21px;
+}
+
+.tech-profile-success,
+.tech-profile-error {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tech-profile-success {
+  color: #166534;
+}
+
+.tech-profile-error {
+  color: #b91c1c;
+}
+
+.tech-profile-card {
+  background: #ffffff;
+  border: 1px solid #dfe4ea;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.tech-profile-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tech-profile-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tech-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #d8f4e3;
+  color: #12a04a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tech-profile-head-left h3 {
+  margin: 0;
+  font-size: 21px;
+  color: #0f172a;
+}
+
+.tech-profile-head-left p {
+  margin: 2px 0 0;
+  color: #475569;
+  font-size: 15px;
+}
+
+.tech-btn-edit,
+.tech-btn-cancel,
+.tech-btn-save {
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tech-btn-edit {
+  background: #12a04a;
+  color: #fff;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.tech-btn-edit:hover {
+  background: #15803d;
+}
+
+.tech-edit-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.tech-btn-cancel {
+  background: #e2e8f0;
+  color: #334155;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.tech-btn-save {
+  background: #12a04a;
+  color: #fff;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.tech-profile-grid {
+  padding: 14px 16px 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 12px 14px;
+}
+
+.tech-field-group label {
+  display: block;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.tech-field-box {
+  min-height: 40px;
+  border-radius: 9px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+}
+
+.tech-field-box svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.tech-field-box span {
+  font-size: 14px;
+}
+
+.tech-field-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font: inherit;
+  color: #0f172a;
+  outline: none;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.tech-role-info {
+  margin-top: 12px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  gap: 9px;
+}
+
+.tech-role-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #dbeafe;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tech-role-info h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #1e40af;
+}
+
+.tech-role-info p {
+  margin: 4px 0 0;
+  color: #1d4ed8;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 1000px) {
+  .tech-profile-title {
+    font-size: 28px;
+  }
+
+  .tech-profile-subtitle {
+    font-size: 17px;
+  }
+
+  .tech-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .tech-profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tech-btn-edit,
+  .tech-edit-actions {
+    width: 100%;
+  }
+
+  .tech-edit-actions button {
+    flex: 1;
+  }
+}

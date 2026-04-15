@@ -65,7 +65,7 @@ const TableCell = forwardRef(({ className, ...props }, ref) => (
 TableCell.displayName = 'TableCell'
 
 const TableCaption = forwardRef(({ className, ...props }, ref) => (
-  <caption className={cn('mt-4 text-sm text-gray-500', className)} {...props} />
+  <caption ref={ref} className={cn('mt-4 text-sm text-gray-500', className)} {...props} />
 ))
 TableCaption.displayName = 'TableCaption'
 

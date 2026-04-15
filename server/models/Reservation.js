@@ -27,21 +27,22 @@ const reservationSchema = new mongoose.Schema({
     default: 'pending',
     index: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
   returnedAt: {
     type: Date,
     default: null
   }
+}, {
+  timestamps: true
 });
 
-reservationSchema.pre('validate', function(next) {
+// Compound index to speed up availability overlap checks.
+reservationSchema.index({ equipmentId: 1, startDate: 1, endDate: 1 });
+
+// Ensure endDate is not before startDate
+reservationSchema.pre('validate', function () {
   if (this.startDate && this.endDate && this.endDate < this.startDate) {
-    return next(new Error('La date de fin doit être égale ou postérieure à la date de début'));
+    throw new Error('La date de fin doit être égale ou postérieure à la date de début');
   }
-  return next();
 });
 
 module.exports = mongoose.model('Reservation', reservationSchema);

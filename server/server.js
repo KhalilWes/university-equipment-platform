@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const equipmentRoutes = require('./routes/equipmentRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const penaltyRoutes = require('./routes/penaltyRoutes');
+const maintenanceRoutes = require('./routes/maintenanceRoutes');
 const { scheduleDailyOverdueCheck } = require('./jobs/checkOverdueReservations');
 
 
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/equipment', equipmentRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/penalties', penaltyRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
 
 // Optimized Connection for Mobile Hotspots
 const dbOptions = {

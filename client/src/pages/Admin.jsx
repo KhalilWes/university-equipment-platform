@@ -20,11 +20,6 @@ export default function Admin() {
     // Page active par défaut
     const [activePage, setActivePage] = useState('Tableau');
 
-    // Récupération de l'utilisateur connecté via backend/localStorage
-    const storedUserStr = localStorage.getItem('user');
-    const storedUser = storedUserStr ? JSON.parse(storedUserStr) : {};
-    const adminName = storedUser.username || "Super Admin";
-
     // Retourne le composant correspondant à la page active
     const renderPage = () => {
         switch (activePage) {
