@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Penalty = require('../models/Penalty');
 const Reservation = require('../models/Reservation');
 const User = require('../models/User');
@@ -13,6 +14,8 @@ function canManagePenalties(role) {
 
 router.post('/', authMiddleware, async (req, res) => {
   try {
+    console.log('[PENALTY] Creating penalty with data:', { userId: req.body.userId, type: req.body.type, amount: req.body.penaltyAmount });
+    
     if (!canManagePenalties(req.user.role)) {
       return res.status(403).json({ success: false, message: 'Accès refusé' });
     }
@@ -23,17 +26,23 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Étudiant requis' });
     }
 
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ success: false, message: 'ID étudiant invalide' });
+    }
+
     const amount = Number(penaltyAmount);
     if (!Number.isFinite(amount) || amount <= 0) {
       return res.status(400).json({ success: false, message: 'Montant invalide' });
     }
 
+    console.log('[PENALTY] Validating student:', userId);
     const student = await User.findById(userId).select('_id role');
     if (!student || student.role !== 'Student') {
       return res.status(404).json({ success: false, message: 'Étudiant introuvable' });
     }
 
-    let linkedReservationId;
+    let linkedReservationId = null;
     if (reservationId) {
       const reservation = await Reservation.findById(reservationId).select('_id userId');
       if (!reservation) {
@@ -52,17 +61,25 @@ router.post('/', authMiddleware, async (req, res) => {
       linkedReservationId = reservation._id;
     }
 
-    const penalty = await Penalty.create({
-      userId,
-      reservationId: linkedReservationId,
+    const penaltyData = {
+      userId: new mongoose.Types.ObjectId(userId),
       daysLate: Math.max(0, Number(daysLate || 0)),
       type: ['retard', 'casse', 'autre'].includes(type) ? type : 'autre',
       description: (description || '').toString().trim(),
       penaltyAmount: amount,
       status: 'unpaid',
       source: 'manual',
-      createdBy: req.user.id
-    });
+      createdBy: new mongoose.Types.ObjectId(req.user.id)
+    };
+
+    // Add reservationId only if it's set (to avoid unique index issues with null)
+    if (linkedReservationId) {
+      penaltyData.reservationId = linkedReservationId;
+    }
+
+    console.log('[PENALTY] Creating penalty with final data:', penaltyData);
+    const penalty = await Penalty.create(penaltyData);
+    console.log('[PENALTY] Penalty created successfully:', penalty._id);
 
     const populatedPenalty = await Penalty.findById(penalty._id)
       .populate('userId', 'username email role')
@@ -74,10 +91,31 @@ router.post('/', authMiddleware, async (req, res) => {
       data: populatedPenalty
     });
   } catch (error) {
+    console.error('[PENALTY] Error creating penalty:', error);
+    console.error('[PENALTY] Error name:', error.name);
+    console.error('[PENALTY] Error code:', error.code);
+    console.error('[PENALTY] Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
+    let errorMessage = error.message || 'Erreur inconnue';
+    
+    // Handle Mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors)
+        .map(e => e.message)
+        .join(', ');
+      errorMessage = messages || 'Erreur de validation';
+    }
+    
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      errorMessage = 'Cette entrée existe déjà';
+    }
+    
     return res.status(400).json({
       success: false,
       message: 'Erreur lors de la création de la pénalité',
-      error: error.message
+      error: errorMessage,
+      details: error.name
     });
   }
 });

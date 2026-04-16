@@ -166,13 +166,16 @@ export default function Penalite() {
 
             const result = await response.json();
             if (!response.ok || !result.success) {
-                throw new Error(result.message || 'Création impossible');
+                console.error('Penalty creation error:', result);
+                const errorMsg = result.error || result.message || 'Création impossible';
+                throw new Error(errorMsg);
             }
 
             setPenalties((prev) => [result.data, ...prev]);
             setShowModal(false);
             resetForm();
         } catch (createError) {
+            console.error('Penalty error:', createError);
             setError(createError.message || 'Erreur serveur lors de la création');
         } finally {
             setCreateLoading(false);

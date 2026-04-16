@@ -1,0 +1,318 @@
+PAGE DE GARDE
+
+REPUBLIQUE TUNISIENNE
+MINISTERE DE L'ENSEIGNEMENT SUPERIEUR ET DE LA RECHERCHE SCIENTIFIQUE
+UNIVERSITE TUNIS EL MANAR
+
+FACULTE DES SCIENCES DE TUNIS
+DEPARTEMENT DES SCIENCES DE L'INFORMATIQUE
+
+RAPPORT DE PROJET FEDERE GLSI2 LCS2
+
+Titre du projet:
+ResaMat - Plateforme Web de Gestion et de Reservation du Materiel Universitaire
+
+Realise par:
+- Yassmine Ben Amor
+- Hadhemi Bessaadi
+- Mohamed Amine Aidoudi
+- Khalil Oueslati
+- Youssef Kouki
+
+Classe:
+LCS2_GLSI2
+
+Encadre par:
+M. Faouzi MOUSSA
+
+Organisme d'accueil:
+FST - DSI
+
+Annee Universitaire:
+2025 - 2026
+
+
+======================================================================
+FICHE DE SYNTHESE
+======================================================================
+
+Formation: LCS2_GLSI2
+Session: Principale
+Annee universitaire: 2025/2026
+
+Auteurs:
+- Yassmine Ben Amor
+- Hadhemi Bessaadi
+- Mohamed Amine Aidoudi
+- Khalil Oueslati
+- Youssef Kouki
+
+Email et telephone du responsable du groupe:
+A COMPLETER
+
+Titre du rapport:
+Plateforme Web de Gestion et de Reservation du Materiel Universitaire
+
+Mots-cles:
+Gestion, Reservation, Materiel, Maintenance, Penalite, Universite
+
+Lien GitHub du projet:
+https://github.com/KhalilWes/university-equipment-platform
+
+
+======================================================================
+REMERCIEMENTS
+======================================================================
+
+Nous exprimons nos sinceres remerciements a notre encadrant M. Faouzi MOUSSA
+pour son accompagnement, ses orientations methodologiques et sa disponibilite.
+
+Nous remercions egalement l'ensemble des enseignants de la Faculte des Sciences
+de Tunis ainsi que le personnel du departement informatique pour leur soutien et
+leurs conseils tout au long de ce projet.
+
+Enfin, nous remercions nos familles et nos collegues pour leurs encouragements
+et leur soutien durant la realisation de ce travail.
+
+
+======================================================================
+SYNTHESE DU RAPPORT
+======================================================================
+
+Ce rapport presente le developpement de ResaMat, une plateforme web dediee a la
+gestion et a la reservation du materiel universitaire. Le systeme repond a des
+besoins reels: visibilite de disponibilite, suivi des reservations, gestion des
+penalites et maintenance des equipements.
+
+L'application propose trois espaces metier:
+- Espace Etudiant
+- Espace Administrateur
+- Espace Technicien
+
+Sur le plan technique, le projet repose sur:
+- Frontend: React + Vite
+- Backend: Node.js + Express
+- Base de donnees: MongoDB via Mongoose
+- Service externe: Cloudinary
+
+Le present document est aussi le document technique de rendu final demande pour
+l'evaluation sur Classroom.
+
+
+======================================================================
+TABLE DES MATIERES
+======================================================================
+
+1. Introduction generale
+2. Chapitre 1 - Informations du groupe et du projet
+3. Chapitre 2 - Lien GitHub et organisation du depot
+4. Chapitre 3 - Consignes d'execution
+5. Chapitre 4 - Documentation technique
+6. Chapitre 5 - Guide utilisateur
+7. Conclusion
+8. Annexe - Checklist de rendu final
+
+
+======================================================================
+INTRODUCTION GENERALE
+======================================================================
+
+Dans le cadre du projet de developpement GLSI2/LCS2, nous avons realise une
+plateforme web complete permettant la digitalisation de la gestion du materiel
+universitaire. L'objectif principal est d'ameliorer la tracabilite des emprunts,
+de simplifier la reservation et de faciliter la maintenance des equipements.
+
+Ce document regroupe l'ensemble des informations exigees pour le rendu final:
+informations du groupe, lien du depot, execution, architecture et guide simple.
+
+
+======================================================================
+CHAPITRE 1 - INFORMATIONS DU GROUPE ET DU PROJET
+======================================================================
+
+Intitule du projet:
+ResaMat - Plateforme Web de Gestion et de Reservation du Materiel Universitaire
+
+Classe:
+LCS2_GLSI2
+
+Membres du groupe:
+1) Yassmine Ben Amor
+2) Hadhemi Bessaadi
+3) Mohamed Amine Aidoudi
+4) Khalil Oueslati
+5) Youssef Kouki
+
+Responsable du depot Classroom:
+A COMPLETER
+
+
+======================================================================
+CHAPITRE 2 - LIEN GITHUB ET ORGANISATION DU DEPOT
+======================================================================
+
+Lien du depot:
+https://github.com/KhalilWes/university-equipment-platform
+
+Qualite et structuration du depot:
+- Separation claire entre frontend (client) et backend (server)
+- Code organise par modules (routes, models, pages, components)
+- Nettoyage des fichiers temporaires / non pertinents
+- Version finale poussee sur la branche main
+
+Arborescence principale:
+- client/
+- server/
+- README.md
+
+
+======================================================================
+CHAPITRE 3 - CONSIGNES D'EXECUTION
+======================================================================
+
+3.1 Prerequis
+- Node.js
+- npm
+- Connexion Internet (MongoDB Atlas + Cloudinary)
+
+3.2 Configuration
+- Le fichier server/.env est deja fourni
+- Aucune creation manuelle de .env n'est necessaire
+
+Variables utilisees:
+- PORT
+- MONGO_URI
+- JWT_SECRET
+- CLOUDINARY_CLOUD_NAME
+- CLOUDINARY_API_KEY
+- CLOUDINARY_API_SECRET
+
+3.3 Installation
+Backend:
+cd server
+npm install
+
+Frontend:
+cd ..\client
+npm install
+
+3.4 Lancement
+Terminal 1 (backend):
+cd server
+npm run dev
+
+Terminal 2 (frontend):
+cd client
+npm run dev
+
+Acces:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000
+
+Build frontend:
+cd client
+npm run build
+
+
+======================================================================
+CHAPITRE 4 - DOCUMENTATION TECHNIQUE
+======================================================================
+
+4.1 Architecture generale
+Le projet suit une architecture client-serveur.
+
+Frontend (React/Vite):
+- Interface utilisateur
+- Navigation par role
+- Composants UI reutilisables
+
+Backend (Node/Express):
+- API REST
+- Authentification JWT
+- Regles metier (reservations, maintenance, penalites)
+
+Persistance et services:
+- MongoDB (Mongoose)
+- Cloudinary pour la gestion media
+
+4.2 Principaux dossiers et roles
+
+client/src/pages:
+- Admin, Etudiant, Technicien et sous-pages metier
+
+server/routes:
+- authRoutes.js
+- equipmentRoutes.js
+- reservationRoutes.js
+- penaltyRoutes.js
+- maintenanceRoutes.js
+
+server/models:
+- User.js
+- Equipment.js
+- Reservation.js
+- Penalty.js
+- MaintenanceTicket.js
+
+4.3 Fonctionnalites majeures
+- Authentification multi-role
+- Gestion du materiel (CRUD)
+- Gestion des reservations
+- Gestion des penalites (auto + manuelle)
+- Gestion de la maintenance par tickets
+
+
+======================================================================
+CHAPITRE 5 - GUIDE UTILISATEUR SIMPLE
+======================================================================
+
+5.1 Espace Etudiant
+- Consulter le catalogue
+- Reserver un materiel
+- Suivre ses reservations
+- Consulter ses penalites
+
+5.2 Espace Administrateur
+- Gerer utilisateurs etudiants
+- Gerer materiel et disponibilite
+- Valider/refuser reservations
+- Signaler maintenance
+- Suivre penalites
+
+5.3 Espace Technicien
+- Consulter les tickets de maintenance
+- Marquer la maintenance terminee
+
+Comptes de test:
+- Admin: A COMPLETER
+- Student: A COMPLETER
+- Technician: A COMPLETER
+
+
+======================================================================
+CONCLUSION
+======================================================================
+
+Le projet ResaMat a permis de mettre en place une solution complete et evolutive
+de gestion du materiel universitaire. L'application repond aux besoins metier en
+ameliorant la tracabilite, la disponibilite de l'information et la qualite de
+service pour les etudiants, administrateurs et techniciens.
+
+
+======================================================================
+ANNEXE - CHECKLIST DE RENDU FINAL
+======================================================================
+
+[ ] Verifier le lien GitHub
+[ ] Verifier la version finale poussee
+[ ] Completer les informations manquantes (responsable + comptes test)
+[ ] Relire le document
+[ ] Exporter en PDF
+
+Nom du fichier PDF (obligatoire):
+Nom1_Nom2_Nom3_Nom4_Nom5_RenduFinal.pdf
+
+
+======================================================================
+FIN DU DOCUMENT
+======================================================================
