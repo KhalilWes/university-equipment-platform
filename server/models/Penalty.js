@@ -11,7 +11,7 @@ const penaltySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Reservation',
     required: false,
-    unique: true,
+    index: true,
     sparse: true
   },
   daysLate: {
@@ -58,5 +58,4 @@ const penaltySchema = new mongoose.Schema({
     default: null
   }
 });
-
 module.exports = mongoose.model('Penalty', penaltySchema);
