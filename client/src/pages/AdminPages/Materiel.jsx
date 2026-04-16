@@ -391,7 +391,6 @@ export default function Materiel() {
                     <option value="Good">Bon état</option>
                     <option value="Fair">Passable</option>
                     <option value="Poor">Mauvais état</option>
-                    <option value="Under Maintenance">Maintenance</option>
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>

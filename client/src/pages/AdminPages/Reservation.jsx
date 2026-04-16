@@ -14,7 +14,7 @@ import {
   DialogBody,
   DialogFooter,
 } from '../../components/ui'
-import { StatusBadge, ActionButtons } from '../../components/StatusBadge'
+import { StatusBadge } from '../../components/StatusBadge'
 import { Search, ChevronDown } from 'lucide-react'
 
 export default function Reservation() {
@@ -25,9 +25,9 @@ export default function Reservation() {
   const [filterStatus, setFilterStatus] = useState('tous')
   const [showFilterMenu, setShowFilterMenu] = useState(false)
 
-  // Dialog state for approve/refuse actions
+  // Dialog state for approve/refuse/return actions
   const [showDialog, setShowDialog] = useState(false)
-  const [dialogAction, setDialogAction] = useState(null) // 'approve' or 'refuse'
+  const [dialogAction, setDialogAction] = useState(null) // 'approve' | 'refuse' | 'return'
   const [selectedReservation, setSelectedReservation] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
 
@@ -84,13 +84,24 @@ export default function Reservation() {
     setShowDialog(true)
   }
 
+  const handleReturnClick = (reservation) => {
+    setSelectedReservation(reservation)
+    setDialogAction('return')
+    setShowDialog(true)
+  }
+
   const confirmAction = async () => {
     if (!selectedReservation || !dialogAction) return
 
     setActionLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const newStatus = dialogAction === 'approve' ? 'approved' : 'refused'
+      const newStatus =
+        dialogAction === 'approve'
+          ? 'approved'
+          : dialogAction === 'refuse'
+            ? 'refused'
+            : 'returned'
 
       const res = await fetch(
         `http://localhost:5000/api/reservations/${selectedReservation._id}/status`,
@@ -107,9 +118,15 @@ export default function Reservation() {
       const data = await res.json()
       if (data.success) {
         // Update the reservation in the list
-        setReservations(
-          reservations.map((r) =>
-            r._id === selectedReservation._id ? { ...r, status: newStatus } : r
+        setReservations((current) =>
+          current.map((r) =>
+            r._id === selectedReservation._id
+              ? {
+                  ...r,
+                  ...(data.data || {}),
+                  status: newStatus,
+                }
+              : r
           )
         )
         setShowDialog(false)
@@ -153,7 +170,7 @@ export default function Reservation() {
     })
   }
 
-  const statusFilterOptions = ['tous', 'pending', 'approved', 'refused']
+  const statusFilterOptions = ['tous', 'pending', 'approved', 'returned', 'refused']
 
   return (
     <div className="p-8 min-h-screen bg-white">
@@ -220,6 +237,8 @@ export default function Reservation() {
                       ? 'En attente'
                       : option === 'approved'
                         ? 'Approuvées'
+                      : option === 'returned'
+                        ? 'Terminées'
                         : 'Refusées'}
                 </button>
               ))}
@@ -312,9 +331,17 @@ export default function Reservation() {
                         </>
                       )}
                       {reservation.status === 'approved' && (
-                        <span className="text-teal-600 text-sm font-medium">
+                        <button
+                          type="button"
+                          onClick={() => handleReturnClick(reservation)}
+                          className="text-teal-600 text-sm font-medium hover:underline"
+                          title="Marquer comme terminée"
+                        >
                           Marquer comme terminée
-                        </span>
+                        </button>
+                      )}
+                      {reservation.status === 'returned' && (
+                        <span className="text-emerald-600 text-sm">Terminée</span>
                       )}
                       {reservation.status === 'refused' && (
                         <span className="text-gray-400 text-sm">Refusée</span>
@@ -335,14 +362,18 @@ export default function Reservation() {
             <DialogTitle>
               {dialogAction === 'approve'
                 ? 'Confirmer l\'approbation'
-                : 'Confirmer le refus'}
+                : dialogAction === 'refuse'
+                  ? 'Confirmer le refus'
+                  : 'Confirmer la finalisation'}
             </DialogTitle>
           </DialogHeader>
           <DialogBody>
             <p className="text-sm text-gray-600 mb-4">
               {dialogAction === 'approve'
                 ? 'Êtes-vous sûr de vouloir approuver cette réservation ?'
-                : 'Êtes-vous sûr de vouloir refuser cette réservation ?'}
+                : dialogAction === 'refuse'
+                  ? 'Êtes-vous sûr de vouloir refuser cette réservation ?'
+                  : 'Confirmez-vous que le matériel a été rendu et que la réservation doit être marquée comme terminée ?'}
             </p>
             {selectedReservation && (
               <div className="bg-gray-50 p-3 rounded-lg">
@@ -364,7 +395,7 @@ export default function Reservation() {
               Annuler
             </Button>
             <Button
-              variant={dialogAction === 'approve' ? 'default' : 'destructive'}
+              variant={dialogAction === 'refuse' ? 'destructive' : 'default'}
               onClick={confirmAction}
               disabled={actionLoading}
             >
