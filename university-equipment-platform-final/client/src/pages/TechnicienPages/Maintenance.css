@@ -1,0 +1,89 @@
+.tech-maintenance-page {
+  padding: 8px;
+}
+
+.tech-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 30px;
+}
+
+.tech-subtitle {
+  margin: 6px 0 16px;
+  color: #475467;
+}
+
+.tech-feedback {
+  color: #166534;
+}
+
+.tech-error {
+  color: #b42318;
+}
+
+.tech-loading,
+.tech-empty {
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  padding: 14px;
+  color: #64748b;
+}
+
+.tech-section-title {
+  margin: 18px 0 10px;
+  color: #0f172a;
+}
+
+.tech-table-wrap {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.tech-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tech-table th,
+.tech-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f2f4f7;
+  text-align: left;
+}
+
+.tech-table th {
+  background: #f9fafb;
+  color: #475467;
+  font-weight: 700;
+}
+
+.btn-fix {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-fix:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.tech-history-list {
+  margin: 0;
+  padding: 14px 18px;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+}
+
+.tech-history-list li {
+  color: #334155;
+  margin-bottom: 8px;
+}

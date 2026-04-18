@@ -1,0 +1,229 @@
+/* MonProfil.css */
+
+.profile-page {
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: #1e293b;
+  width: 100%;
+  max-width: 1320px;
+}
+
+.profile-page .catalog-header {
+  margin-bottom: 24px;
+}
+
+.profile-page .catalog-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.profile-page .catalog-description {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* User Card */
+.profile-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.profile-avatar {
+  background-color: #e0f2fe;
+  color: #0284c7;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24px;
+}
+
+.profile-avatar svg {
+  width: 40px;
+  height: 40px;
+}
+
+.profile-name h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+}
+
+.profile-name p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.profile-field-box {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.profile-field-icon {
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.profile-field-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-field-text span {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.profile-field-text strong {
+  font-size: 15px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Statistics Section */
+.profile-stats-section h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.profile-stat-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.stat-icon.blue {
+  background-color: #eff6ff;
+  color: #3b82f6;
+}
+
+.stat-icon.green {
+  background-color: #f0fdf4;
+  color: #22c55e;
+}
+
+.stat-icon.red {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-content span {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.stat-content strong {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Activity Summary */
+.activity-summary-container {
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.activity-summary-container h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+}
+
+.activity-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity-row {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.activity-row span {
+  font-size: 14px;
+  color: #475569;
+}
+
+.activity-row strong {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.activity-row.approved strong { color: #22c55e; }
+.activity-row.pending strong { color: #f59e0b; }
+.activity-row.finished strong { color: #3b82f6; }
+.activity-row.refused strong { color: #ef4444; }
