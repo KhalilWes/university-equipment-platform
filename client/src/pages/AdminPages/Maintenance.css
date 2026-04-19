@@ -1,0 +1,289 @@
+.admin-maintenance-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 10px 6px 18px;
+}
+
+.maintenance-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.maintenance-title {
+  margin: 0;
+  font-size: clamp(28px, 2.2vw, 38px);
+  line-height: 1.06;
+  color: #0f172a;
+}
+
+.maintenance-subtitle {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: clamp(14px, 1vw, 18px);
+}
+
+.btn-report {
+  border: none;
+  border-radius: 12px;
+  background: #0d9488;
+  color: #fff;
+  font-size: clamp(14px, 1vw, 18px);
+  font-weight: 700;
+  line-height: 1;
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-report:hover {
+  background: #0f766e;
+}
+
+.maintenance-alert {
+  margin-bottom: 12px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: clamp(13px, 0.95vw, 16px);
+}
+
+.maintenance-section-title {
+  margin: 12px 0 8px;
+  font-size: clamp(22px, 1.7vw, 30px);
+  color: #0f172a;
+}
+
+.maintenance-section-title span {
+  margin-left: 8px;
+  display: inline-block;
+  min-width: 22px;
+  text-align: center;
+  background: #fed7aa;
+  color: #b45309;
+  border-radius: 999px;
+  font-size: clamp(12px, 0.85vw, 14px);
+  padding: 2px 7px;
+}
+
+.maintenance-section-title.done span {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.maintenance-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.maintenance-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #f59e0b;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+.maintenance-card.done {
+  border-left-color: #22c55e;
+}
+
+.maintenance-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.maintenance-card-head h4 {
+  margin: 0;
+  font-size: clamp(18px, 1.3vw, 24px);
+  color: #0f172a;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: clamp(11px, 0.8vw, 13px);
+  font-weight: 700;
+}
+
+.badge.in-progress {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.badge.done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.issue-text {
+  margin: 6px 0;
+  color: #334155;
+  font-size: clamp(14px, 0.95vw, 17px);
+}
+
+.ticket-meta {
+  margin: 3px 0;
+  color: #64748b;
+  font-size: clamp(13px, 0.9vw, 15px);
+}
+
+.ticket-foot {
+  margin: 6px 0 0;
+  color: #0d9488;
+  font-style: italic;
+  font-size: clamp(13px, 0.9vw, 15px);
+}
+
+.maintenance-empty,
+.maintenance-loading {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  color: #64748b;
+  text-align: center;
+  font-size: clamp(14px, 1vw, 17px);
+}
+
+.maintenance-feedback {
+  color: #166534;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.maintenance-error {
+  color: #b91c1c;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: min(640px, 92vw);
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: clamp(19px, 1.4vw, 24px);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 7px;
+  color: #334155;
+  font-size: 14px;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  padding: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-cancel,
+.btn-save {
+  border: none;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-cancel {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-save {
+  background: #0d9488;
+  color: #fff;
+}
+
+@media (max-width: 1100px) {
+  .admin-maintenance-page {
+    padding: 8px 4px 14px;
+  }
+
+  .maintenance-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .maintenance-title {
+    font-size: 25px;
+  }
+
+  .maintenance-subtitle {
+    font-size: 14px;
+  }
+
+  .btn-report {
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+
+  .maintenance-section-title {
+    font-size: 21px;
+  }
+
+  .maintenance-card-head h4 {
+    font-size: 18px;
+  }
+
+  .issue-text {
+    font-size: 14px;
+  }
+
+  .ticket-meta,
+  .ticket-foot,
+  .maintenance-alert,
+  .maintenance-empty,
+  .maintenance-loading {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 760px) {
+  .maintenance-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-report {
+    width: 100%;
+  }
+}
